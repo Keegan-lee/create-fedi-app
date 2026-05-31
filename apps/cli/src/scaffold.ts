@@ -7,6 +7,7 @@ import {
   shouldApplyModuleFile,
   type ModuleManifest,
 } from './modules.js';
+import { buildDemoRoutes, renderDemoRoutesFile } from './demo-routes.js';
 
 function getTemplatesDir(): string {
   const bundled = path.join(__dirname, 'templates');
@@ -203,5 +204,16 @@ export async function scaffold(
   ]);
 
   await applyModules(selections, targetDir, templatesDir);
+  await generateDemoRoutes(selections, targetDir);
   await generateEnvLocal(selections, targetDir, templatesDir);
+}
+
+async function generateDemoRoutes(
+  selections: UserSelections,
+  targetDir: string,
+): Promise<void> {
+  const moduleNames = getSelectedModuleNames(selections);
+  const routes = buildDemoRoutes(moduleNames);
+  const content = renderDemoRoutesFile(routes);
+  await fs.writeFile(path.join(targetDir, 'lib/demo-routes.ts'), content, 'utf-8');
 }

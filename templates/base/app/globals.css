@@ -1,10 +1,16 @@
 @import "tailwindcss";
-@import "@tailwindcss/typography";
+@plugin "@tailwindcss/typography";
+
+@source "../app/**/*.{ts,tsx}";
+@source "../components/**/*.{ts,tsx}";
+@source "../hooks/**/*.{ts,tsx}";
+@source "../lib/**/*.{ts,tsx}";
 
 @theme {
   /* Fedi palette */
   --color-bg: #0a0a0a;
   --color-surface: #141414;
+  --color-surface-1: #181818;
   --color-surface-2: #1c1c1c;
   --color-border: rgba(255, 255, 255, 0.08);
   --color-accent: #ff6b35;
