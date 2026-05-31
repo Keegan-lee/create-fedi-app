@@ -1,0 +1,57 @@
+---
+title: nostr-identity
+description: Always-on module — NostrProvider, useNostr, useIdentity hooks for NIP-07 signing inside Fedi.
+---
+
+The `nostr-identity` module is included in every project. It provides the React context layer for `window.nostr` — no separate demo page, but hooks are used across other modules.
+
+## Files (base template)
+
+| File | Purpose |
+| --- | --- |
+| `lib/nostr/provider.tsx` | NostrContext, auto-connect on mount |
+| `lib/nostr/hooks.ts` | useNostr, useIdentity |
+| `lib/nostr/mock.ts` | MockNostrProvider for development |
+| `lib/nostr/index.ts` | Public exports |
+
+## Integration
+
+Providers are composed in `components/providers.tsx`:
+
+```tsx
+<WebLNProvider mockProvider={mockWebLN}>
+  <NostrProvider mockProvider={mockNostr}>
+    {children}
+  </NostrProvider>
+</WebLNProvider>
+```
+
+Mock providers activate when toggled in the Fedi Dev Toolbar (development only).
+
+## useIdentity pattern
+
+```tsx
+'use client';
+import { useIdentity } from '@/lib/nostr';
+
+export function ConnectButton() {
+  const { displayNpub, getPublicKey, isConnecting } = useIdentity();
+
+  if (displayNpub) return <span>{displayNpub}</span>;
+
+  return (
+    <button disabled={isConnecting} onClick={() => getPublicKey()}>
+      Connect Nostr
+    </button>
+  );
+}
+```
+
+## npub encoding
+
+`useNostr` derives bech32 `npub` from the hex pubkey using `@scure/base`. Display truncated npub via `useIdentity().displayNpub`.
+
+## See also
+
+- [Nostr API reference](/docs/apis/nostr)
+- [nostr-feed module](/docs/modules/nostr-feed) — social features built on identity

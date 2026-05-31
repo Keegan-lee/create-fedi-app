@@ -1,0 +1,87 @@
+---
+title: lnurl
+description: Optional module — LNURL-pay, LNURL-auth, and LNURL-withdraw callback routes with demo UI at /demo/lnurl.
+---
+
+Implements the three common LNURL subprotocols as API routes plus React demo components. Useful for Lightning addresses, login-with-Lightning, and faucet-style withdraw flows.
+
+## Files added
+
+| File | Purpose |
+| --- | --- |
+| `lib/lnurl-utils.ts` | Encode/decode LNURL, callback URL helpers |
+| `lib/lnurl-store.ts` | In-memory store for auth challenges, withdraw links |
+| `lib/lnurl-auth-verify.ts` | LNURL-auth signature verification |
+| `components/lnurl/LnurlQR.tsx` | QR code for LNURL strings |
+| `components/lnurl/LnurlPay.tsx` | LNURL-pay flow demo |
+| `components/lnurl/LnurlAuth.tsx` | LNURL-auth login demo |
+| `components/lnurl/LnurlWithdraw.tsx` | LNURL-withdraw demo |
+| `app/api/lnurlp/[username]/route.ts` | LNURL-pay endpoint |
+| `app/api/lnurlauth/route.ts` | LNURL-auth endpoint |
+| `app/api/lnurlw/route.ts` | LNURL-withdraw endpoint |
+| `app/demo/lnurl/page.tsx` | Combined demo |
+
+## Dependencies
+
+- `qrcode.react`
+
+## Environment variables
+
+| Key | Required | Description |
+| --- | --- | --- |
+| `LNURL_SERVER_URL` | no | Public base URL for callbacks (required behind reverse proxies) |
+
+Set to your production URL when deployed — LNURL callbacks must be reachable from the Lightning network.
+
+## LNURL-pay
+
+### GET /api/lnurlp/[username]
+
+Returns LNURL-pay metadata JSON per [LUD-06](https://github.com/lnurl/luds/blob/luds/06.md):
+
+```json
+{
+  "callback": "https://your-app.com/api/lnurlp/alice?amount=...",
+  "maxSendable": 1000000000,
+  "minSendable": 1000,
+  "metadata": "[[\"text/plain\",\"Pay alice\"]]",
+  "tag": "payRequest"
+}
+```
+
+Client decodes `lnurl1...` bech32, fetches metadata, then pays via WebLN.
+
+## LNURL-auth
+
+### GET /api/lnurlauth
+
+Issues a k1 challenge. Wallet signs k1 with node key via WebLN `signMessage`.
+
+### POST verification
+
+Server verifies signature against k1, issues session token.
+
+## LNURL-withdraw
+
+### GET /api/lnurlw
+
+Returns withdraw parameters. Client creates invoice via WebLN `makeInvoice`, submits to callback URL.
+
+## LnurlWithdraw component
+
+Demonstrates the withdraw loop:
+
+1. Display withdraw LNURL QR
+2. User scans with wallet (or mock via WebLN in Fedi)
+3. Wallet creates invoice, server pays out
+
+Shows error when WebLN unavailable: "Open inside Fedi to create a withdraw invoice."
+
+## Demo route
+
+`/demo/lnurl` — tabbed UI for pay, auth, and withdraw flows.
+
+## See also
+
+- [WebLN signMessage](/docs/apis/webln#signmessagemessage)
+- [LUD specs](https://github.com/lnurl/luds)

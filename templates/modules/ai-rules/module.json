@@ -1,0 +1,20 @@
+{
+  "name": "ai-rules",
+  "description": "Agent-readable context files for AI coding tools",
+  "dependencies": [],
+  "devDependencies": [],
+  "files": [
+    { "src": "CLAUDE.md", "dest": ".ai/CLAUDE.md", "merge": "add" },
+    { "src": ".cursorrules", "dest": ".ai/.cursorrules", "merge": "add" },
+    { "src": ".github/copilot-instructions.md", "dest": ".ai/.github/copilot-instructions.md", "merge": "add" },
+    { "src": "rules/OVERVIEW.md", "dest": ".ai/rules/OVERVIEW.md", "merge": "replace" },
+    { "src": "rules/webln.md", "dest": ".ai/rules/webln.md", "merge": "add" },
+    { "src": "rules/nostr.md", "dest": ".ai/rules/nostr.md", "merge": "add" },
+    { "src": "rules/fedi-api.md", "dest": ".ai/rules/fedi-api.md", "merge": "add" },
+    { "src": "rules/design-system.md", "dest": ".ai/rules/design-system.md", "merge": "add" },
+    { "src": "rules/patterns.md", "dest": ".ai/rules/patterns.md", "merge": "add" },
+    { "src": "rules/architecture.md", "dest": ".ai/rules/architecture.md", "merge": "add" },
+    { "src": "rules/testing.md", "dest": ".ai/rules/testing.md", "merge": "add" }
+  ],
+  "envVars": []
+}

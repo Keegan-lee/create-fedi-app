@@ -1,0 +1,79 @@
+---
+title: nostr-feed
+description: Optional module — subscribe to kind:1 notes, publish signed posts, and zap creators via WebLN and NIP-57.
+---
+
+Social feed demo combining Nostr relays with optional Lightning zaps. Reads and writes kind-1 text notes; zaps use NIP-57 (LNURL + WebLN payment + zap receipt).
+
+## Files added
+
+| File | Purpose |
+| --- | --- |
+| `lib/nostr/relay.ts` | WebSocket relay subscription helpers |
+| `lib/nostr-zap.ts` | NIP-57 zap request + receipt logic |
+| `components/nostr/NostrFeedProvider.tsx` | Feed context with live subscription |
+| `components/nostr/NoteFeed.tsx` | Scrollable note list |
+| `components/nostr/NoteCard.tsx` | Single note display |
+| `components/nostr/PublishNote.tsx` | Compose + sign + publish |
+| `components/nostr/ZapButton.tsx` | NIP-57 zap flow |
+| `app/demo/nostr-feed/page.tsx` | Demo page |
+
+## Dependencies
+
+- `nostr-tools` — relay protocol, event verification
+- `react-markdown` — note content rendering
+
+## Environment variables
+
+| Key | Required | Description |
+| --- | --- | --- |
+| `NEXT_PUBLIC_NOSTR_RELAY` | no | Comma-separated relay URLs (default: public relays) |
+
+## Requires
+
+- `nostr-identity` — signing posts and zap requests
+- WebLN (always included) — paying zap invoices
+
+## PublishNote
+
+Signs kind-1 event and publishes to configured relays:
+
+```tsx
+const { signEvent } = useIdentity();
+
+const event = await signEvent({
+  kind: 1,
+  created_at: Math.floor(Date.now() / 1000),
+  tags: [],
+  content: noteText,
+});
+// publish via relay.ts
+```
+
+Shows "Connect your Nostr identity (NIP-07)" when provider unavailable.
+
+## ZapButton (NIP-57)
+
+Zap flow:
+
+1. Fetch recipient's LNURL from their `lud16` lightning address (kind:0 profile)
+2. Create signed zap request (kind:9734)
+3. Get invoice from LNURL callback with zap request embedded
+4. Pay via WebLN `sendPayment`
+5. Publish zap receipt (kind:9735) to relay
+
+Disabled with message when WebLN unavailable.
+
+## NoteFeed
+
+Subscribes to kind:1 notes from `NEXT_PUBLIC_NOSTR_RELAY` on mount. Live updates via WebSocket `EVENT` messages.
+
+## Demo route
+
+`/demo/nostr-feed` — read feed, publish notes, zap posts (requires Fedi for zaps).
+
+## See also
+
+- [Nostr API](/docs/apis/nostr)
+- [Patterns — zaps](/docs/patterns#zaps)
+- [NIP-57](https://github.com/nostr-protocol/nips/blob/master/57.md)

@@ -1,0 +1,48 @@
+{
+  "name": "ai-assistant",
+  "description": "Free AI assistant chat powered by Vercel AI SDK",
+  "dependencies": [
+    "ai",
+    "@ai-sdk/react",
+    "react-markdown",
+    "@ai-sdk/anthropic",
+    "@ai-sdk/openai",
+    "@ai-sdk/groq",
+    "ollama-ai-provider"
+  ],
+  "devDependencies": [],
+  "files": [
+    { "src": "lib/ai/providers.ts", "dest": "lib/ai/providers.ts", "merge": "add" },
+    { "src": "components/ai/AssistantProvider.tsx", "dest": "components/ai/AssistantProvider.tsx", "merge": "add" },
+    { "src": "components/ai/Assistant.tsx", "dest": "components/ai/Assistant.tsx", "merge": "add" },
+    { "src": "app/api/assistant/route.ts", "dest": "app/api/assistant/route.ts", "merge": "add" },
+    { "src": "app/demo/assistant/page.tsx", "dest": "app/demo/assistant/page.tsx", "merge": "add" },
+    { "src": "app/demo/assistant/AssistantDemoClient.tsx", "dest": "app/demo/assistant/AssistantDemoClient.tsx", "merge": "add" }
+  ],
+  "envVars": [
+    {
+      "key": "AI_PROVIDER",
+      "description": "AI provider — anthropic | openai | groq | ollama",
+      "example": "anthropic",
+      "required": true
+    },
+    {
+      "key": "AI_API_KEY",
+      "description": "Provider API key (not required for ollama)",
+      "example": "sk-ant-...",
+      "required": true
+    },
+    {
+      "key": "AI_MODEL",
+      "description": "Specific model name (e.g. claude-sonnet-4-6)",
+      "example": "claude-sonnet-4-6",
+      "required": false
+    },
+    {
+      "key": "AI_BASE_URL",
+      "description": "Custom base URL for Ollama or self-hosted endpoints",
+      "example": "http://localhost:11434",
+      "required": false
+    }
+  ]
+}

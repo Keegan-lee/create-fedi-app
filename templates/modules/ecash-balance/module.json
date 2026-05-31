@@ -1,0 +1,14 @@
+{
+  "name": "ecash-balance",
+  "description": "Fedi ecash balance display and fediInternal API demos",
+  "dependencies": [],
+  "devDependencies": [],
+  "files": [
+    { "src": "components/fedi/BalanceDisplay.tsx", "dest": "components/fedi/BalanceDisplay.tsx", "merge": "add" },
+    { "src": "components/fedi/FediVersionBadge.tsx", "dest": "components/fedi/FediVersionBadge.tsx", "merge": "add" },
+    { "src": "components/fedi/InstallMiniAppButton.tsx", "dest": "components/fedi/InstallMiniAppButton.tsx", "merge": "add" },
+    { "src": "hooks/useFediBalance.ts", "dest": "hooks/useFediBalance.ts", "merge": "add" },
+    { "src": "app/demo/ecash/page.tsx", "dest": "app/demo/ecash/page.tsx", "merge": "add" }
+  ],
+  "envVars": []
+}

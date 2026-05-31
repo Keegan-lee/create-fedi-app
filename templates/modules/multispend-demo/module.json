@@ -1,0 +1,18 @@
+{
+  "name": "multispend-demo",
+  "description": "Fedi multispend shared wallet UI",
+  "dependencies": [],
+  "devDependencies": [],
+  "files": [
+    { "src": "lib/multispend-types.ts", "dest": "lib/multispend-types.ts", "merge": "add" },
+    { "src": "lib/multispend-utils.ts", "dest": "lib/multispend-utils.ts", "merge": "add" },
+    { "src": "hooks/useMultispendDemo.ts", "dest": "hooks/useMultispendDemo.ts", "merge": "add" },
+    { "src": "components/multispend/ApprovalVote.tsx", "dest": "components/multispend/ApprovalVote.tsx", "merge": "add" },
+    { "src": "components/multispend/MultispendProposal.tsx", "dest": "components/multispend/MultispendProposal.tsx", "merge": "add" },
+    { "src": "components/multispend/ProposalList.tsx", "dest": "components/multispend/ProposalList.tsx", "merge": "add" },
+    { "src": "components/multispend/MultispendDemo.tsx", "dest": "components/multispend/MultispendDemo.tsx", "merge": "add" },
+    { "src": "app/demo/multispend/page.tsx", "dest": "app/demo/multispend/page.tsx", "merge": "add" },
+    { "src": "app/demo/multispend/MultispendDemoClient.tsx", "dest": "app/demo/multispend/MultispendDemoClient.tsx", "merge": "add" }
+  ],
+  "envVars": []
+}

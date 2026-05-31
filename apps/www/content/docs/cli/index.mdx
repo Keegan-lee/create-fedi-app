@@ -1,0 +1,53 @@
+---
+title: CLI Overview
+description: create-fedi-app CLI scaffolds a Next.js Fedi mini app from templates with interactive prompts and automatic dependency installation.
+---
+
+The CLI is a Node.js binary published as `create-fedi-app`. It uses [@clack/prompts](https://github.com/natemoo-re/clack) for interactive selection and copies files from `templates/base/` plus selected modules from `templates/modules/`.
+
+## Invocation
+
+```bash
+npx create-fedi-app@latest
+# or
+npx create-fedi-app@latest --version
+```
+
+| Flag | Description |
+| --- | --- |
+| `-v`, `--version` | Print CLI version and exit |
+
+Non-interactive flags are not yet supported — all options go through prompts.
+
+## What the CLI does
+
+1. **Prompt** — collect project name, database, modules, AI rules, AI provider (conditional), package manager
+2. **Validate** — reject existing directories, enforce kebab-case project names
+3. **Scaffold** — copy base template, replace `{{PROJECT_NAME}}` and `{{PACKAGE_MANAGER}}` placeholders
+4. **Apply modules** — merge always-on modules, then each selected optional module per `module.json` manifest
+5. **Generate `.env.local`** — from `.env.example` with module-specific variables
+6. **Install** — run `bun install`, `pnpm install`, or `npm install`
+7. **Print next steps** — cd, env setup, dev command, Fedi testing instructions
+
+## Always-on modules
+
+These apply to every project regardless of selection:
+
+- `webln-payments`
+- `nostr-identity`
+- `ecash-balance`
+
+## Merge strategies
+
+Each file in a module manifest declares how it merges into the generated project:
+
+| Strategy | Behavior |
+| --- | --- |
+| `add` | Copy only if destination does not exist |
+| `replace` | Always overwrite destination |
+| `append` | Append source contents to end of existing file |
+
+## See also
+
+- [CLI options](/docs/cli/options) — every prompt and validation rule
+- [Module selection](/docs/cli/modules) — optional modules and dependencies

@@ -1,0 +1,28 @@
+{
+  "name": "create-fedi-app-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "clean": "turbo run clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "@types/node": "^22",
+    "@vitejs/plugin-react": "^4",
+    "eslint": "^9",
+    "eslint-config-next": "^16.2.6",
+    "jsdom": "^25",
+    "nostr-tools": "^2.14.0",
+    "prettier": "^3",
+    "turbo": "latest",
+    "typescript": "^5",
+    "vitest": "^2"
+  },
+  "packageManager": "bun@1.2.0"
+}

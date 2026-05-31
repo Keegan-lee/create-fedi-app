@@ -1,0 +1,135 @@
+---
+title: Patterns
+description: Common Fedi mini app integration recipes — pay gates, identity login, zaps, and server-side payment verification.
+---
+
+Reusable patterns from the module demos. Copy and adapt — not abstractions you must import.
+
+## Pay gate
+
+Lock content behind a Lightning payment without user accounts.
+
+**When:** Premium articles, digital downloads, API access, AI messages.
+
+**Flow:**
+
+1. Server creates BOLT11 via your Lightning node or LND/CLN API
+2. Client displays invoice + WebLN pay button
+3. User pays → preimage returned to client
+4. Client sends preimage to server
+5. Server verifies preimage against invoice hash
+6. Server grants access (cookie, JWT, or unlock response)
+
+**Scaffold reference:** [payment-gated module](/docs/modules/payment-gated)
+
+```typescript
+// Server-side preimage verification (conceptual)
+import { validatePreimage } from '@/lib/lightning';
+
+export async function POST(req: Request) {
+  const { preimage, paymentHash } = await req.json();
+  if (!validatePreimage(preimage, paymentHash)) {
+    return Response.json({ error: 'Invalid payment' }, { status: 402 });
+  }
+  // Set access cookie or return unlocked content
+}
+```
+
+<Callout type="info">
+  Preimage verification must happen server-side. Never trust client-only checks — preimages can be replayed if you skip hash validation.
+</Callout>
+
+**Cookie pattern:** HMAC-sign `{ contentId, paymentId }` so tampering fails. See `lib/payment-gate.ts` in the payment-gated module.
+
+## Identity login
+
+Use Nostr pubkey as user identity — no passwords, no OAuth.
+
+**When:** User profiles, signed content, reputation, social features.
+
+**Flow:**
+
+1. Call `window.nostr.getPublicKey()` — user approves in Fedi
+2. Server issues a challenge (random nonce)
+3. Client signs challenge via `signEvent` or `signMessage`
+4. Server verifies signature against pubkey
+5. Server creates session bound to npub
+
+**Minimal client:**
+
+```tsx
+const { getPublicKey, signEvent } = useIdentity();
+
+async function login() {
+  const pubkey = await getPublicKey();
+  const challenge = await fetch('/api/auth/challenge').then(r => r.json());
+  const signed = await signEvent({
+    kind: 27235,  // NIP-98 HTTP auth
+    created_at: Math.floor(Date.now() / 1000),
+    tags: [['u', challenge.url], ['method', 'GET']],
+    content: '',
+  });
+  await fetch('/api/auth/verify', { method: 'POST', body: JSON.stringify({ pubkey, event: signed }) });
+}
+```
+
+**LNURL-auth alternative:** See [lnurl module](/docs/modules/lnurl) for wallet-native login without custom challenge endpoints.
+
+## Zaps
+
+Send sats to a Nostr user with a public zap receipt on relays ([NIP-57](https://github.com/nostr-protocol/nips/blob/master/57.md)).
+
+**When:** Tipping creators, paid reactions, supporting content.
+
+**Flow:**
+
+1. Read recipient's `lud16` tag from kind:0 profile event
+2. Build zap request (kind:9734) signed by sender
+3. Fetch LNURL-pay invoice with embedded zap request
+4. Pay via WebLN
+5. Publish zap receipt (kind:9735) to relay
+
+**Scaffold reference:** `components/nostr/ZapButton.tsx` in [nostr-feed](/docs/modules/nostr-feed)
+
+Requires both WebLN and Nostr providers active.
+
+## Micropayment streaming
+
+Charge per AI token or per API call.
+
+**Pattern:**
+
+```typescript
+// Middleware check
+export async function POST(req: Request) {
+  const proof = req.headers.get('x-lightning-proof');
+  if (!await verifyPayment(proof)) {
+    const invoice = await createInvoice(10); // 10 sats
+    return Response.json({ invoice }, { status: 402 });
+  }
+  return streamAIResponse(req);
+}
+```
+
+Client retries with payment after receiving 402 + invoice.
+
+## Graceful degradation
+
+Every pattern must work in three environments:
+
+| Environment | WebLN | Nostr | fediInternal |
+| --- | --- | --- | --- |
+| Desktop browser | Mock (dev toolbar) | Mock (dev toolbar) | Unavailable |
+| Fedi WebView | Real | Real | Version-dependent |
+| Production SSR | N/A (client-only) | N/A | N/A |
+
+Always check provider availability before rendering pay/sign buttons. Show "Open in Fedi" CTAs on the web.
+
+## Error handling
+
+| User action | Expected error | UX |
+| --- | --- | --- |
+| Deny WebLN enable | `Failed to enable WebLN` | Explain why payment is needed, retry button |
+| Insufficient balance | Wallet-specific message | Link to receive sats in Fedi |
+| Deny Nostr sign | Silent or generic | Keep UI in "connect" state |
+| Relay offline | WebSocket error | Show cached content or retry |

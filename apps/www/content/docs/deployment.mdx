@@ -1,0 +1,125 @@
+---
+title: Deployment
+description: Deploy Fedi mini apps to Vercel and submit to the Fedi catalog for discovery in the wallet.
+---
+
+Mini apps are standard Next.js apps served over HTTPS. Deploy anywhere; Vercel is the default recommendation for App Router projects.
+
+## Vercel deployment
+
+### 1. Push to GitHub
+
+```bash
+git init
+git add .
+git commit -m "Initial Fedi mini app"
+git remote add origin https://github.com/you/my-fedi-app.git
+git push -u origin main
+```
+
+### 2. Import on Vercel
+
+Connect the repository at [vercel.com/new](https://vercel.com/new). Framework preset: **Next.js**. Root directory: project root.
+
+### 3. Environment variables
+
+Add all keys from `.env.local` in the Vercel dashboard → Settings → Environment Variables:
+
+| Variable | Required when |
+| --- | --- |
+| `PAYMENT_GATE_SECRET` | payment-gated module |
+| `AI_PROVIDER`, `AI_API_KEY` | ai-chat-gated or ai-assistant |
+| `DATABASE_URL` | Turso/Supabase selected |
+| `LNURL_SERVER_URL` | lnurl module (set to production URL) |
+| `NEXT_PUBLIC_NOSTR_RELAY` | nostr-feed (optional override) |
+
+Use Doppler or Vercel's encrypted storage — never commit secrets.
+
+### 4. Deploy
+
+Vercel runs `next build` automatically. Preview URLs deploy on every PR.
+
+### 5. Verify HTTPS
+
+Fedi requires HTTPS for mini apps. Vercel provides this by default. Custom domains need valid TLS certificates.
+
+## LNURL callback URL
+
+If using the lnurl module, set:
+
+```
+LNURL_SERVER_URL=https://your-production-domain.com
+```
+
+LNURL bech32 encodes this URL — localhost callbacks fail from external Lightning nodes.
+
+## Testing production build locally
+
+```bash
+bun run build
+bun start
+```
+
+Mock providers are disabled in production (`NODE_ENV=production`). Test payment flows in Fedi against the production URL.
+
+## Fedi catalog submission
+
+List your app in the official Fedi catalog for wallet discovery.
+
+**Form:** [Catalog submission](https://docs.google.com/forms/d/e/1FAIpQLSfrvsoeaNYiGhoc8QwzLXEi4zMFVyxpa4ufJFTwEHp97AeUmQ/viewform)
+
+Prepare before submitting:
+
+| Field | Guidance |
+| --- | --- |
+| App name | Short, clear title |
+| URL | Production HTTPS URL |
+| Description | What the app does, why users need it |
+| Icon | Square PNG, min 256×256 |
+| Screenshots | Mobile viewport — mini apps run in phone WebView |
+| Category | Pick closest match |
+
+**Reference implementation:** [fedibtc/catalog](https://github.com/fedibtc/catalog)
+
+## programatic install (fediInternal v2)
+
+Prompt users to install from within your app:
+
+```typescript
+await window.fediInternal?.installMiniApp({
+  id: 'my-app',
+  title: 'My App',
+  url: 'https://my-app.vercel.app',
+  imageUrl: 'https://my-app.vercel.app/icon.png',
+  description: 'One-line description',
+});
+```
+
+Only works inside Fedi with API v2.
+
+## Custom mini app (development)
+
+Before catalog approval, test via Fedi settings:
+
+1. Open Fedi → Settings → Developer (or Custom Mini Apps)
+2. Add URL: `https://your-preview.vercel.app` or ngrok tunnel
+3. Open from mini app list
+
+Use Mutinynet test sats — not mainnet — during development.
+
+## Checklist
+
+- [ ] All env vars set on Vercel
+- [ ] `PAYMENT_GATE_SECRET` is a long random string (not dev default)
+- [ ] `LNURL_SERVER_URL` matches production domain
+- [ ] App loads in mobile WebView without horizontal scroll
+- [ ] WebLN pay flow works on Mutinynet
+- [ ] Nostr connect works in Fedi
+- [ ] Icon and OG metadata set for catalog review
+- [ ] Catalog form submitted
+
+## See also
+
+- [Quickstart — Fedi testing](/docs/quickstart#5-test-inside-fedi)
+- [fediInternal installMiniApp](/docs/apis/fedi-internal#installminiappminiapp)
+- [Fedi docs](https://fedibtc.github.io/fedi-docs/)

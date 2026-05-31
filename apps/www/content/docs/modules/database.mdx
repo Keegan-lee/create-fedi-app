@@ -1,0 +1,97 @@
+---
+title: database
+description: Optional module — Drizzle ORM CRUD demo with Turso (libSQL) or Supabase (Postgres) selected at scaffold time.
+---
+
+Adds a persistence layer with Drizzle ORM. Driver files differ by database choice at CLI prompt — Turso or Supabase.
+
+## Files added
+
+| File | Purpose |
+| --- | --- |
+| `lib/db/index.ts` | Database client (Turso or Supabase variant) |
+| `lib/db/schema.ts` | Drizzle schema |
+| `drizzle.config.ts` | Drizzle Kit configuration |
+| `drizzle/0000_initial.sql` | Initial migration |
+| `env.ts` | Extended with DATABASE_URL validation |
+| `app/demo/database/page.tsx` | CRUD demo UI |
+| `app/api/items/route.ts` | REST endpoints for items |
+
+## Dependencies
+
+- `drizzle-orm`, `drizzle-kit`
+- Turso: `@libsql/client`
+- Supabase: `postgres`, `@supabase/supabase-js`
+
+## Environment variables
+
+| Key | Required | Description |
+| --- | --- | --- |
+| `DATABASE_URL` | yes | `libsql://...` (Turso) or `postgresql://...` (Supabase) |
+| `DATABASE_AUTH_TOKEN` | Turso only | Turso auth token |
+
+## Scripts added
+
+```json
+{
+  "db:generate": "drizzle-kit generate",
+  "db:migrate": "drizzle-kit migrate",
+  "db:push": "drizzle-kit push",
+  "db:studio": "drizzle-kit studio"
+}
+```
+
+## Setup
+
+**Turso:**
+
+```bash
+turso db create my-fedi-app
+turso db show my-fedi-app --url
+turso db tokens create my-fedi-app
+# Add DATABASE_URL and DATABASE_AUTH_TOKEN to .env.local
+bun run db:push
+```
+
+**Supabase:**
+
+Create a project at supabase.com, copy the Postgres connection string to `DATABASE_URL`, then:
+
+```bash
+bun run db:push
+```
+
+## Schema
+
+Default demo schema — a simple `items` table:
+
+```typescript
+export const items = pgTable('items', {
+  id: serial('id').primaryKey(),
+  title: text('title').notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+```
+
+Turso variant uses SQLite types (`sqliteTable`, `integer`).
+
+## API routes
+
+| Method | Path | Description |
+| --- | --- | --- |
+| GET | `/api/items` | List all items |
+| POST | `/api/items` | Create item `{ title: string }` |
+| DELETE | `/api/items?id=1` | Delete by ID |
+
+## Enhances payment-gated
+
+When combined with `payment-gated-content`, store payment records in the database instead of in-memory `payment-store.ts` — migrate the store implementation to Drizzle queries.
+
+## Demo route
+
+`/demo/database` — create, list, and delete items.
+
+## See also
+
+- [CLI database option](/docs/cli/options#2-database)
+- [Drizzle ORM docs](https://orm.drizzle.team/)

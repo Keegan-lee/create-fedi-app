@@ -1,0 +1,110 @@
+{
+  "name": "database",
+  "description": "Drizzle ORM CRUD example with Turso or Supabase",
+  "dependencies": ["drizzle-orm"],
+  "devDependencies": ["drizzle-kit"],
+  "databaseType": {
+    "turso": {
+      "dependencies": ["@libsql/client"],
+      "devDependencies": []
+    },
+    "supabase": {
+      "dependencies": ["postgres", "@supabase/supabase-js"],
+      "devDependencies": []
+    }
+  },
+  "scripts": {
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
+  },
+  "files": [
+    {
+      "src": "lib/db/index.turso.ts",
+      "dest": "lib/db/index.ts",
+      "merge": "add",
+      "databaseType": "turso"
+    },
+    {
+      "src": "lib/db/index.supabase.ts",
+      "dest": "lib/db/index.ts",
+      "merge": "add",
+      "databaseType": "supabase"
+    },
+    {
+      "src": "lib/db/schema.turso.ts",
+      "dest": "lib/db/schema.ts",
+      "merge": "add",
+      "databaseType": "turso"
+    },
+    {
+      "src": "lib/db/schema.supabase.ts",
+      "dest": "lib/db/schema.ts",
+      "merge": "add",
+      "databaseType": "supabase"
+    },
+    {
+      "src": "drizzle.config.turso.ts",
+      "dest": "drizzle.config.ts",
+      "merge": "add",
+      "databaseType": "turso"
+    },
+    {
+      "src": "drizzle.config.supabase.ts",
+      "dest": "drizzle.config.ts",
+      "merge": "add",
+      "databaseType": "supabase"
+    },
+    {
+      "src": "env.turso.ts",
+      "dest": "env.ts",
+      "merge": "replace",
+      "databaseType": "turso"
+    },
+    {
+      "src": "env.supabase.ts",
+      "dest": "env.ts",
+      "merge": "replace",
+      "databaseType": "supabase"
+    },
+    {
+      "src": "drizzle/turso/0000_initial.sql",
+      "dest": "drizzle/0000_initial.sql",
+      "merge": "add",
+      "databaseType": "turso"
+    },
+    {
+      "src": "drizzle/turso/meta/_journal.json",
+      "dest": "drizzle/meta/_journal.json",
+      "merge": "add",
+      "databaseType": "turso"
+    },
+    {
+      "src": "drizzle/supabase/0000_initial.sql",
+      "dest": "drizzle/0000_initial.sql",
+      "merge": "add",
+      "databaseType": "supabase"
+    },
+    {
+      "src": "drizzle/supabase/meta/_journal.json",
+      "dest": "drizzle/meta/_journal.json",
+      "merge": "add",
+      "databaseType": "supabase"
+    }
+  ],
+  "envVars": [
+    {
+      "key": "DATABASE_URL",
+      "description": "Database connection URL (libsql:// for Turso, postgresql:// for Supabase)",
+      "example": "libsql://your-db.turso.io",
+      "required": true
+    },
+    {
+      "key": "DATABASE_AUTH_TOKEN",
+      "description": "Database auth token (Turso only)",
+      "example": "eyJ...",
+      "required": false
+    }
+  ]
+}

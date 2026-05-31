@@ -1,0 +1,84 @@
+---
+title: CLI Options
+description: Complete reference for every create-fedi-app prompt, default value, validation rule, and conditional logic.
+---
+
+Prompts appear in this fixed order. Press `Ctrl+C` at any prompt to cancel cleanly.
+
+## 1. Project name
+
+| Property | Value |
+| --- | --- |
+| Type | `text` |
+| Default | `my-fedi-app` |
+| Validation | `/^[a-z0-9-]+$/` — lowercase letters, numbers, hyphens only |
+
+The CLI creates a directory with this name in the current working directory. If the directory already exists, the CLI exits with an error.
+
+## 2. Database
+
+| Option | Value | Description |
+| --- | --- | --- |
+| **None** *(default)* | `none` | No persistence layer |
+| Turso | `turso` | libSQL edge database via Drizzle ORM |
+| Supabase | `supabase` | Postgres via Drizzle ORM |
+
+Selecting Turso or Supabase applies the `database` module automatically with the matching driver files (`index.turso.ts` vs `index.supabase.ts`).
+
+## 3. Optional modules
+
+| Module ID | Label | Hint |
+| --- | --- | --- |
+| `payment-gated-content` | Payment-gated content | Lock content behind a Lightning payment |
+| `lnurl` | LNURL | LNURL-pay and LNURL-withdraw |
+| `ai-chat-gated` | AI chat (gated) | AI chat locked behind ecash payment |
+| `ai-assistant` | AI assistant | Free AI chat with Vercel AI SDK |
+| `multispend-demo` | Multispend demo | Fedi multispend wallet UI |
+| `nostr-feed` | Nostr feed | Read/post to a Nostr relay |
+| `database` | Database demo | Drizzle ORM CRUD example |
+
+Multiselect — space to toggle, enter to confirm. Empty selection is valid.
+
+## 4. AI rules directory
+
+| Property | Value |
+| --- | --- |
+| Type | `confirm` |
+| Default | `true` |
+
+When enabled, applies the `ai-rules` module: generates `.cursorrules`, `CLAUDE.md`, and `.ai/rules/` with Fedi API context for AI-assisted development.
+
+## 5. AI provider *(conditional)*
+
+Only shown when `ai-chat-gated` **or** `ai-assistant` is selected.
+
+| Option | Value | Description |
+| --- | --- | --- |
+| **Agnostic** *(default)* | `agnostic` | Vercel AI SDK default — swap any provider |
+| Anthropic | `anthropic` | Claude via `@ai-sdk/anthropic` |
+| OpenAI | `openai` | GPT via `@ai-sdk/openai` |
+| Groq | `groq` | Fast inference via `@ai-sdk/groq` |
+| Ollama | `ollama` | Local models via `ollama-ai-provider` |
+
+Sets default values in `.env.local` for `AI_PROVIDER` and related keys.
+
+## 6. Package manager
+
+| Option | Value | Hint |
+| --- | --- | --- |
+| **bun** *(default)* | `bun` | Recommended — fastest |
+| pnpm | `pnpm` | Efficient disk usage |
+| npm | `npm` | Broadest compatibility |
+
+Replaces `{{PACKAGE_MANAGER}}` in generated `package.json` scripts and runs the corresponding install command.
+
+## Environment variables injected
+
+Each selected module may add keys to `.env.local` from its `module.json` `envVars` array. See individual [module guides](/docs/modules/webln-payments) for required keys.
+
+## Exit codes
+
+| Code | Meaning |
+| --- | --- |
+| `0` | Success or user cancelled |
+| `1` | Directory exists, scaffold failure, or unhandled error |

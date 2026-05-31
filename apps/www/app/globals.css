@@ -1,0 +1,107 @@
+@import "tailwindcss";
+@import "@tailwindcss/typography";
+@import "fumadocs-ui/css/preset.css";
+
+@source "../../../packages/ui/src/**/*.{ts,tsx}";
+@source "../node_modules/fumadocs-ui/dist/**/*.js";
+
+@theme {
+  /* Fedi palette */
+  --color-bg: #0a0a0a;
+  --color-surface: #141414;
+  --color-surface-2: #1c1c1c;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-accent: #ff6b35;
+  --color-accent-dim: rgba(255, 107, 53, 0.15);
+  --color-text: #f0eee9;
+  --color-text-muted: #8a8880;
+  --color-text-subtle: #4a4845;
+  --color-success: #3d8b5f;
+  --color-destructive: #dc2626;
+
+  --color-background: var(--color-bg);
+  --color-foreground: var(--color-text);
+  --color-primary: var(--color-accent);
+  --color-primary-foreground: var(--color-text);
+  --color-secondary: var(--color-surface-2);
+  --color-secondary-foreground: var(--color-text);
+  --color-muted: var(--color-surface);
+  --color-muted-foreground: var(--color-text-muted);
+  --color-input: var(--color-border);
+  --color-ring: var(--color-accent);
+  --color-card: var(--color-surface);
+  --color-card-foreground: var(--color-text);
+  --color-popover: var(--color-surface);
+  --color-popover-foreground: var(--color-text);
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius: 8px;
+
+  /* Fumadocs theme — mapped to Fedi tokens (dark-only) */
+  --color-fd-background: var(--color-bg);
+  --color-fd-foreground: var(--color-text);
+  --color-fd-muted: var(--color-surface);
+  --color-fd-muted-foreground: var(--color-text-muted);
+  --color-fd-popover: var(--color-surface);
+  --color-fd-popover-foreground: var(--color-text);
+  --color-fd-card: var(--color-surface);
+  --color-fd-card-foreground: var(--color-text);
+  --color-fd-border: var(--color-border);
+  --color-fd-primary: var(--color-accent);
+  --color-fd-primary-foreground: var(--color-bg);
+  --color-fd-secondary: var(--color-surface-2);
+  --color-fd-secondary-foreground: var(--color-text);
+  --color-fd-accent: var(--color-accent-dim);
+  --color-fd-accent-foreground: var(--color-accent);
+  --color-fd-ring: var(--color-accent);
+}
+
+@theme inline {
+  --font-display: var(--font-display, "Bricolage Grotesque", system-ui, sans-serif);
+  --font-body: var(--font-body, "DM Sans", system-ui, sans-serif);
+  --font-mono: var(--font-mono, "JetBrains Mono", ui-monospace, monospace);
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    color: var(--color-text);
+    line-height: 1.25;
+  }
+
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: var(--font-mono);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}

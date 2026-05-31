@@ -1,0 +1,137 @@
+---
+title: window.fediInternal
+description: Fedi-specific browser API for mini app discovery, installation, and version detection — not available in standard browsers.
+---
+
+`window.fediInternal` is a Fedi-only API absent from standard browsers and other Lightning wallets. Unlike WebLN and Nostr, it is **optional** — older Fedi builds may not inject it, and your app must degrade gracefully.
+
+## Version detection
+
+The API is versioned. Check `fediInternal.version` before calling methods:
+
+```typescript
+type FediInternal =
+  | { version: 0 }
+  | { version: 1 }
+  | { version: 2; getInstalledMiniApps(): Promise<Array<{ url: string }>>; installMiniApp(miniApp: TMiniAppInstall): Promise<void> };
+
+interface TMiniAppInstall {
+  id: string;
+  title: string;
+  url: string;
+  imageUrl?: string | null;
+  description?: string;
+}
+```
+
+| Version | Methods | Notes |
+| --- | --- | --- |
+| `0` | None | API present but no callable methods |
+| `1` | None | Placeholder for future expansion |
+| `2` | `getInstalledMiniApps`, `installMiniApp` | Current full API |
+
+## getInstalledMiniApps()
+
+Lists mini apps installed in the user's Fedi wallet.
+
+```typescript
+// fediInternal.version === 2 only
+const apps = await window.fediInternal!.getInstalledMiniApps();
+// [{ url: "https://example.com/my-app" }, ...]
+```
+
+| Returns | `Promise<Array<{ url: string }>>` |
+| Errors | Network failure, permission denied |
+
+Use this to deep-link between mini apps or show a "related apps" panel.
+
+## installMiniApp(miniApp)
+
+Prompts the user to install a mini app in their Fedi catalog.
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | `string` | yes | Unique app identifier |
+| `title` | `string` | yes | Display name |
+| `url` | `string` | yes | HTTPS URL of the mini app |
+| `imageUrl` | `string \| null` | no | Icon URL |
+| `description` | `string` | no | Short description |
+
+| Returns | `Promise<void>` |
+| Errors | User cancellation, invalid URL |
+
+```typescript
+await window.fediInternal!.installMiniApp({
+  id: 'my-game',
+  title: 'Sat Stack',
+  url: 'https://satstack.example.com',
+  imageUrl: 'https://satstack.example.com/icon.png',
+  description: 'Stack sats in a tower',
+});
+```
+
+## useFediInternal hook
+
+Base template hook at `hooks/useFediInternal.ts`:
+
+```typescript
+function useFediInternal(): {
+  isAvailable: boolean;
+  version: 0 | 1 | 2 | null;
+  getInstalledMiniApps: (() => Promise<Array<{ url: string }>>) | null;
+  installMiniApp: ((miniApp: TMiniAppInstall) => Promise<void>) | null;
+}
+```
+
+Methods are `null` when unavailable or version &lt; 2.
+
+```tsx
+const { isAvailable, version, getInstalledMiniApps } = useFediInternal();
+
+if (!isAvailable) return <p>Open in Fedi to see installed apps</p>;
+if (version! < 2) return <p>Update Fedi for mini app discovery</p>;
+```
+
+## useFediBalance hook
+
+Ecash module hook at `hooks/useFediBalance.ts`:
+
+```typescript
+type TFediBalanceState =
+  | { status: 'loading' }
+  | { status: 'unavailable' }
+  | {
+      status: 'ready';
+      version: 0 | 1 | 2;
+      miniApps: Array<{ url: string }> | null;
+      miniAppsError: boolean;
+    };
+```
+
+On v2, automatically calls `getInstalledMiniApps()` and surfaces results or `miniAppsError`.
+
+## Degradation pattern
+
+```tsx
+function MiniAppList() {
+  const fedi = useFediInternal();
+
+  if (!fedi.isAvailable) {
+    return null; // or a subtle "Open in Fedi" CTA
+  }
+
+  // v0/v1: show version badge only
+  // v2: full mini app list
+}
+```
+
+Never assume `fediInternal` exists. Feature-detect exactly like WebLN and Nostr.
+
+## Demo
+
+Visit `/demo/ecash` in a generated project for `FediVersionBadge`, `BalanceDisplay`, and `InstallMiniAppButton` components.
+
+## Related
+
+- [ecash-balance module](/docs/modules/ecash-balance)
+- [Fedi docs — mini apps](https://fedibtc.github.io/fedi-docs/)

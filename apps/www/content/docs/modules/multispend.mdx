@@ -1,0 +1,80 @@
+---
+title: multispend
+description: Optional module — Fedi threshold spending UI walkthrough with Nostr-signed proposal approvals.
+---
+
+Module ID at scaffold time: `multispend-demo`.
+
+Demonstrates Fedi's multispend pattern: a shared wallet requires M-of-N Nostr-signed approvals before executing a spend. UI-only demo with mock execution — no live federation connection.
+
+## Files added
+
+| File | Purpose |
+| --- | --- |
+| `lib/multispend-types.ts` | Proposal, vote, member types |
+| `lib/multispend-utils.ts` | Threshold logic, status helpers |
+| `hooks/useMultispendDemo.ts` | Demo state machine |
+| `components/multispend/MultispendDemo.tsx` | Main demo container |
+| `components/multispend/ProposalList.tsx` | Active proposals list |
+| `components/multispend/MultispendProposal.tsx` | Single proposal detail |
+| `components/multispend/ApprovalVote.tsx` | Sign approval with Nostr |
+| `app/demo/multispend/page.tsx` | Demo page |
+
+## Requires
+
+- `nostr-identity` (always included) — approvals are Nostr-signed events
+
+## Types
+
+```typescript
+interface TMultispendProposal {
+  id: string;
+  title: string;
+  amountSats: number;
+  destination: string;
+  createdAt: number;
+  threshold: number;
+  approvals: string[];  // pubkeys that approved
+  status: 'pending' | 'approved' | 'executed' | 'rejected';
+}
+```
+
+## Flow
+
+```
+1. Demo seeds proposals with threshold (e.g. 2-of-3)
+2. User views proposal in ProposalList
+3. ApprovalVote calls useIdentity().signEvent() with custom kind
+4. When approvals >= threshold, status → approved
+5. Mock "Execute" button simulates federation spend
+```
+
+## ApprovalVote
+
+Uses NIP-07 signing to approve a proposal:
+
+```tsx
+const { signEvent, pubkey } = useIdentity();
+
+async function approve(proposalId: string) {
+  await signEvent({
+    kind: 30078,  // application-specific
+    created_at: Math.floor(Date.now() / 1000),
+    tags: [['p', proposalId]],
+    content: 'approve',
+  });
+}
+```
+
+## Demo route
+
+`/demo/multispend` — interactive walkthrough with pre-seeded proposals. Connect Nostr (or enable mock) to sign approvals.
+
+## Production note
+
+This module is a **UI reference**, not a federation SDK integration. Real multispend requires federation-specific APIs beyond the scaffold scope.
+
+## See also
+
+- [Nostr identity](/docs/modules/nostr-identity)
+- [Fedi multispend docs](https://fedibtc.github.io/fedi-docs/)

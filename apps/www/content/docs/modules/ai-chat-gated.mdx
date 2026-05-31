@@ -1,0 +1,77 @@
+---
+title: ai-chat-gated
+description: Optional module — streaming AI chat where each message costs sats. Invoice, WebLN payment, then Vercel AI SDK streamText.
+---
+
+Metered AI without subscriptions. Each user message triggers a Lightning invoice; after WebLN payment and preimage verification, the server streams an LLM response.
+
+## Files added
+
+| File | Purpose |
+| --- | --- |
+| `lib/chat-payment.ts` | Invoice creation, payment verification |
+| `lib/ai/providers.ts` | Vercel AI SDK provider factory |
+| `components/ai/PaymentGate.tsx` | Pay-to-send wrapper |
+| `components/ai/GatedChat.tsx` | Chat UI with payment gate |
+| `components/ai/ChatMessage.tsx` | Message bubble component |
+| `app/api/chat/route.ts` | POST — stream AI after payment check |
+| `app/api/chat/invoice/route.ts` | POST — create per-message invoice |
+| `app/demo/ai-chat/page.tsx` | Demo page |
+
+## Dependencies
+
+- `ai`, `@ai-sdk/react`, `react-markdown`
+- `@ai-sdk/anthropic`, `@ai-sdk/openai`, `@ai-sdk/groq`, `ollama-ai-provider`
+
+## Environment variables
+
+| Key | Required | Description |
+| --- | --- | --- |
+| `AI_PROVIDER` | yes | `anthropic` \| `openai` \| `groq` \| `ollama` |
+| `AI_API_KEY` | yes* | Provider API key (*not for Ollama) |
+| `AI_MODEL` | no | Model name override |
+| `AI_BASE_URL` | no | Ollama/self-hosted endpoint |
+| `AI_SATS_PER_MESSAGE` | no | Server-side price (default from env) |
+| `NEXT_PUBLIC_SATS_PER_MESSAGE` | no | Client UI display price |
+
+## Flow
+
+```
+1. User types message in GatedChat
+2. PaymentGate fetches POST /api/chat/invoice
+3. User pays invoice via WebLN
+4. Client sends POST /api/chat with messages + payment proof
+5. Server verifies payment, calls streamText(), returns SSE stream
+6. GatedChat renders streaming response via @ai-sdk/react useChat
+```
+
+## API routes
+
+### POST /api/chat/invoice
+
+Returns a BOLT11 for one message at `AI_SATS_PER_MESSAGE` sats.
+
+### POST /api/chat
+
+Accepts chat messages and payment verification headers. Returns streaming AI response on valid payment.
+
+## PaymentGate
+
+Wraps message submission:
+
+```tsx
+<PaymentGate onPaid={(proof) => submitMessage(proof)}>
+  {(requestPayment, isPaying) => (
+    <ChatInput onSubmit={requestPayment} disabled={isPaying} />
+  )}
+</PaymentGate>
+```
+
+## Dev bypass
+
+`x-mock-preimage` header in development skips WebLN for API testing.
+
+## See also
+
+- [ai-assistant module](/docs/modules/ai-assistant) — free AI without payment
+- [Patterns — pay gate](/docs/patterns#pay-gate)
