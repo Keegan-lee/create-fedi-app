@@ -274,7 +274,7 @@ Entry point. Use `@clack/prompts` for all UI:
 4. Call `scaffold(selections, targetDir)` from scaffold.ts inside a `spinner`
 5. Call `installDeps(selections.packageManager, targetDir)` inside a spinner
 6. Call `printNextSteps(selections)` from next-steps.ts
-7. `outro()` — "Happy building. Docs: https://fedi.keeganfrancis.com/docs"
+7. `outro()` — "Happy building. Docs: https://create-fedi-app.keeganfrancis.com/docs"
 8. Handle `isCancel()` on every prompt — exit cleanly with `process.exit(0)`
 
 ### apps/cli/src/types.ts
@@ -358,7 +358,7 @@ Implement merge strategies:
   ▸ Add http://localhost:3000 as a custom Mini App in Fedi
   ▸ window.webln and window.nostr are now injected
 
-  Docs: https://fedi.keeganfrancis.com/docs
+  Docs: https://create-fedi-app.keeganfrancis.com/docs
 ```
 
 ### apps/cli/tsup.config.ts

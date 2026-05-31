@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
+import { QR_FOREGROUND } from '../InvoiceQr';
+import { useIsMounted } from '../../hooks/useIsMounted';
 import { decodeLnurl, encodeLnurl } from '../../lib/lnurl-utils';
 
 interface ILnurlQRProps {
@@ -25,10 +27,25 @@ function toLnurlString(value: string): string {
  * Renders a bech32-encoded LNURL as a scannable QR code with copy support.
  */
 export function LnurlQR({ value, label = 'LNURL QR code', size = 160, className }: ILnurlQRProps) {
+  const mounted = useIsMounted();
   const [copied, setCopied] = useState(false);
 
-  const lnurl = useMemo(() => toLnurlString(value), [value]);
+  const { lnurl, encodeError } = useMemo(() => {
+    if (!value.trim()) {
+      return { lnurl: '', encodeError: null as string | null };
+    }
+    try {
+      return { lnurl: toLnurlString(value), encodeError: null };
+    } catch (err) {
+      return {
+        lnurl: '',
+        encodeError: err instanceof Error ? err.message : 'Invalid LNURL',
+      };
+    }
+  }, [value]);
+
   const decodedUrl = useMemo(() => {
+    if (!lnurl) return null;
     try {
       return decodeLnurl(lnurl);
     } catch {
@@ -37,9 +54,26 @@ export function LnurlQR({ value, label = 'LNURL QR code', size = 160, className 
   }, [lnurl]);
 
   async function handleCopy() {
+    if (!lnurl) return;
     await navigator.clipboard.writeText(lnurl);
     setCopied(true);
     window.setTimeout(() => setCopied(false), 2000);
+  }
+
+  if (encodeError) {
+    return (
+      <p className="text-xs" style={{ color: 'var(--color-error, #ef4444)' }} role="alert">
+        {encodeError}
+      </p>
+    );
+  }
+
+  if (!mounted || !lnurl) {
+    return (
+      <p className="text-sm" style={{ color: 'var(--color-text-subtle)' }} aria-live="polite">
+        Preparing QR code…
+      </p>
+    );
   }
 
   return (
@@ -61,7 +95,7 @@ export function LnurlQR({ value, label = 'LNURL QR code', size = 160, className 
           size={size}
           level="M"
           bgColor="transparent"
-          fgColor="var(--color-text)"
+          fgColor={QR_FOREGROUND}
         />
       </div>
 

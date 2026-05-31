@@ -1,12 +1,21 @@
 {
   "name": "create-fedi-app",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "CLI scaffolder for Fedi Bitcoin mini apps",
   "bin": {
     "create-fedi-app": "./dist/index.js"
   },
   "files": ["dist/"],
   "keywords": ["fedi", "fedimint", "bitcoin", "lightning", "webln", "nostr", "mini-app", "nextjs"],
+  "homepage": "https://create-fedi-app.keeganfrancis.com/docs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/keeganfrancis/create-fedi-app.git",
+    "directory": "apps/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/keeganfrancis/create-fedi-app/issues"
+  },
   "license": "MIT",
   "scripts": {
     "build": "tsup && rm -rf dist/templates && cp -R ../../templates dist/templates",

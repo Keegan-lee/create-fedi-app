@@ -39,7 +39,11 @@ $ npx create-fedi-app@latest
    Next: cd my-fedi-app && bun install && bun dev
 ```
 
-Docs: [fedi.keeganfrancis.com/docs](https://fedi.keeganfrancis.com/docs)
+Docs: [create-fedi-app.keeganfrancis.com/docs](https://create-fedi-app.keeganfrancis.com/docs)
+
+### Deploy and test in Fedi
+
+After scaffolding, deploy your app to Vercel and open it inside the Fedi wallet (custom mini app URL, then catalog submission). Step-by-step instructions live in the npm package README: [`apps/cli/README.md`](./apps/cli/README.md) (published to [npmjs.com/package/create-fedi-app](https://www.npmjs.com/package/create-fedi-app)).
 
 ## Modules
 
@@ -115,7 +119,7 @@ Requires an `NPM_TOKEN` secret on the repository (Automation token with publish 
 
 ## Deploying the docs site (Vercel)
 
-The marketing and documentation site in `apps/www` deploys to [fedi.keeganfrancis.com](https://fedi.keeganfrancis.com).
+The marketing and documentation site in `apps/www` deploys to [create-fedi-app.keeganfrancis.com](https://create-fedi-app.keeganfrancis.com).
 
 | Setting | Value |
 |---------|-------|
@@ -127,7 +131,7 @@ The marketing and documentation site in `apps/www` deploys to [fedi.keeganfranci
 
 **Environment variables:** none required — see [apps/www/.env.example](./apps/www/.env.example).
 
-Connect the GitHub repo in the Vercel dashboard, set the root directory to `apps/www`, enable monorepo file inclusion, and add the custom domain `fedi.keeganfrancis.com`.
+Connect the GitHub repo in the Vercel dashboard, set the root directory to `apps/www`, enable monorepo file inclusion, and add the custom domain `create-fedi-app.keeganfrancis.com`.
 
 ### Repository layout
 
@@ -135,7 +139,7 @@ Connect the GitHub repo in the Vercel dashboard, set the root directory to `apps
 create-fedi-app/
 ├── apps/
 │   ├── cli/          # create-fedi-app npm package
-│   └── www/          # fedi.keeganfrancis.com (landing + docs)
+│   └── www/          # create-fedi-app.keeganfrancis.com (landing + docs)
 ├── packages/
 │   ├── fedi-types/   # TypeScript types for injected Fedi APIs
 │   ├── webln/        # WebLN provider + mock (canonical source)

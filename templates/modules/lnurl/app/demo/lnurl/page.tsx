@@ -2,11 +2,11 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { PaymentCallout } from '../../../components/PaymentCallout';
 import { LnurlAuth } from '../../../components/lnurl/LnurlAuth';
+import { LnurlErrorBoundary } from '../../../components/lnurl/LnurlErrorBoundary';
 import { LnurlPay } from '../../../components/lnurl/LnurlPay';
 import { LnurlWithdraw } from '../../../components/lnurl/LnurlWithdraw';
-
-const DEMO_USERNAME = 'demo-user';
 
 export default function LnurlDemoPage() {
   const [howItWorksOpen, setHowItWorksOpen] = useState(false);
@@ -24,7 +24,7 @@ export default function LnurlDemoPage() {
           ← back
         </Link>
 
-        <header className="mb-8 space-y-2">
+        <header className="mb-6 space-y-2">
           <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold leading-tight text-[var(--color-text)]">
             LNURL
           </h1>
@@ -34,6 +34,8 @@ export default function LnurlDemoPage() {
           </p>
         </header>
 
+        <PaymentCallout className="mb-8" />
+
         <div className="space-y-8">
           <section className="space-y-4">
             <div className="max-w-[75ch] space-y-1.5">
@@ -41,12 +43,14 @@ export default function LnurlDemoPage() {
                 LNURL-pay
               </h2>
               <p className="text-sm leading-[1.65] text-[var(--color-text-muted)]">
-                Static QR for <code className="font-mono text-xs">/api/lnurlp/[username]</code>.
-                Wallets fetch metadata, then call your callback with an amount in millisats to receive
-                a BOLT11 invoice.
+                Primary QR uses your configured maintainer LNURL address. Expand the self-hosted
+                section to try <code className="font-mono text-xs">/api/lnurlp/[username]</code>{' '}
+                callbacks on your own deployment.
               </p>
             </div>
-            <LnurlPay username={DEMO_USERNAME} />
+            <LnurlErrorBoundary title="LNURL-pay failed to render">
+              <LnurlPay />
+            </LnurlErrorBoundary>
           </section>
 
           <section className="space-y-4">
@@ -60,7 +64,9 @@ export default function LnurlDemoPage() {
                 callback.
               </p>
             </div>
-            <LnurlAuth />
+            <LnurlErrorBoundary title="LNURL-auth failed to render">
+              <LnurlAuth />
+            </LnurlErrorBoundary>
           </section>
 
           <section className="space-y-4">
@@ -73,7 +79,9 @@ export default function LnurlDemoPage() {
                 callback with a BOLT11 from <code className="font-mono text-xs">makeInvoice()</code>.
               </p>
             </div>
-            <LnurlWithdraw />
+            <LnurlErrorBoundary title="LNURL-withdraw failed to render">
+              <LnurlWithdraw />
+            </LnurlErrorBoundary>
           </section>
 
           <section className="space-y-3">

@@ -21,6 +21,7 @@
     "zod": "^3",
     "clsx": "^2",
     "tailwind-merge": "^2",
+    "light-bolt11-decoder": "^3.2.0",
     "qrcode.react": "^4"
   },
   "devDependencies": {

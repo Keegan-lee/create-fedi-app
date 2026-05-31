@@ -1,5 +1,9 @@
 import { createHmac, timingSafeEqual } from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
+import { getPaymentHashFromInvoice } from './lightning/bolt11';
+import { createLnurlPayInvoice } from './lightning/lnurl-pay';
+import { verifyPreimage } from './lightning/preimage-verify';
+import { getDemoGateSats, getLnurlPayAddress } from './payment-config';
 import {
   createPaymentRecord,
   getPaymentById,
@@ -122,36 +126,37 @@ export type TGenerateInvoiceResult = {
   invoice: string;
   amountSats: number;
   memo: string;
-  /** Present in development to simulate wallet payment without WebLN */
-  devPreimage?: string;
 };
 
 /**
- * Creates a server-side invoice and stores a pending payment record.
+ * Creates a real LNURL-pay invoice and stores a pending payment record.
  */
 export async function generateInvoice(options: {
   contentId: string;
-  amountSats: number;
+  amountSats?: number;
   memo?: string;
 }): Promise<TGenerateInvoiceResult> {
+  const amountSats = options.amountSats ?? getDemoGateSats();
+  const memo = options.memo ?? `Unlock ${options.contentId}`;
+  const lnurlAddress = getLnurlPayAddress();
+
+  const { invoice } = await createLnurlPayInvoice(lnurlAddress, amountSats, memo);
+  const paymentHash = getPaymentHashFromInvoice(invoice);
+
   const record = await createPaymentRecord({
     contentId: options.contentId,
-    amountSats: options.amountSats,
-    memo: options.memo ?? `Unlock ${options.contentId}`,
+    invoice,
+    paymentHash,
+    amountSats,
+    memo,
   });
 
-  const result: TGenerateInvoiceResult = {
+  return {
     paymentId: record.id,
     invoice: record.invoice,
     amountSats: record.amountSats,
     memo: record.memo,
   };
-
-  if (process.env.NODE_ENV === 'development') {
-    result.devPreimage = record.preimage;
-  }
-
-  return result;
 }
 
 export type TVerifyPaymentResult =
@@ -159,7 +164,7 @@ export type TVerifyPaymentResult =
   | { valid: false; reason: string };
 
 /**
- * Verifies a Lightning payment preimage against a pending invoice record.
+ * Verifies a Lightning payment preimage against the invoice payment hash.
  */
 export async function verifyPayment(
   paymentId: string,
@@ -178,7 +183,7 @@ export async function verifyPayment(
     return { valid: true, record };
   }
 
-  if (record.preimage !== preimage) {
+  if (!verifyPreimage(preimage, record.paymentHash)) {
     return { valid: false, reason: 'Invalid payment proof' };
   }
 

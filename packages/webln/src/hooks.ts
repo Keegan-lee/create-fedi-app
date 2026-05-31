@@ -9,26 +9,35 @@ export function useWebLN() {
   }
   return {
     provider: ctx.provider,
+    isAvailable: ctx.isAvailable,
     isLoading: ctx.isLoading,
     error: ctx.error,
     isConnected: ctx.provider !== null,
+    connect: ctx.connect,
   };
 }
 
 export function usePayment() {
-  const { provider } = useWebLN();
+  const { provider, connect, isAvailable } = useWebLN();
   const [isPaying, setIsPaying] = useState(false);
   const [isCreatingInvoice, setIsCreatingInvoice] = useState(false);
   const [paymentError, setPaymentError] = useState<Error | null>(null);
   const [lastPreimage, setLastPreimage] = useState<string | null>(null);
   const [lastInvoice, setLastInvoice] = useState<string | null>(null);
 
+  async function ensureEnabled() {
+    if (provider) return provider;
+    if (!isAvailable) return null;
+    return connect();
+  }
+
   async function sendPayment(paymentRequest: string) {
-    if (!provider) return null;
+    const active = await ensureEnabled();
+    if (!active) return null;
     setIsPaying(true);
     setPaymentError(null);
     try {
-      const result = await provider.sendPayment(paymentRequest);
+      const result = await active.sendPayment(paymentRequest);
       setLastPreimage(result.preimage);
       return result;
     } catch (err) {
@@ -40,11 +49,12 @@ export function usePayment() {
   }
 
   async function makeInvoice(args: RequestInvoiceArgs | string | number) {
-    if (!provider) return null;
+    const active = await ensureEnabled();
+    if (!active) return null;
     setIsCreatingInvoice(true);
     setPaymentError(null);
     try {
-      const result = await provider.makeInvoice(args);
+      const result = await active.makeInvoice(args);
       setLastInvoice(result.paymentRequest);
       return result;
     } catch (err) {

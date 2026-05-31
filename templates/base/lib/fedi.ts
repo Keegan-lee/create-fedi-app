@@ -7,6 +7,12 @@ export function getFediInternalVersion(): 0 | 1 | 2 | null {
   return window.fediInternal.version as 0 | 1 | 2;
 }
 
+/** True when Fedi rejected a call due to a missing or denied mini-app permission. */
+export function isFediPermissionError(err: unknown): boolean {
+  const message = err instanceof Error ? err.message : String(err);
+  return /permission denied|missing the following permissions/i.test(message);
+}
+
 export function formatSats(sats: number): string {
   if (sats >= 100_000) return `${(sats / 100_000_000).toFixed(6)} BTC`;
   return `${sats.toLocaleString()} sats`;

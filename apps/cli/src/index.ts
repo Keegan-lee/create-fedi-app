@@ -40,7 +40,7 @@ Interactive prompts:
   5. AI provider (if AI modules selected)
   6. Package manager: bun | pnpm | npm
 
-Docs: https://fedi.keeganfrancis.com/docs`);
+Docs: https://create-fedi-app.keeganfrancis.com/docs`);
 }
 
 async function main(): Promise<void> {
@@ -126,9 +126,9 @@ async function main(): Promise<void> {
   printNextSteps(selections);
 
   if (nonInteractive) {
-    console.log('Happy building. Docs: https://fedi.keeganfrancis.com/docs');
+    console.log('Happy building. Docs: https://create-fedi-app.keeganfrancis.com/docs');
   } else {
-    p.outro('Happy building. Docs: https://fedi.keeganfrancis.com/docs');
+    p.outro('Happy building. Docs: https://create-fedi-app.keeganfrancis.com/docs');
   }
 }
 

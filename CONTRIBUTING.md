@@ -132,6 +132,7 @@ Every feature module should ship a demo route under `app/demo/<module>/page.tsx`
 - Use `'use client'` when calling browser APIs or hooks.
 - Wrap content in `MiniAppLayout` and `DemoSection` from the base template.
 - Guard `window.webln`, `window.nostr`, and `window.fediInternal` — they are `undefined` outside Fedi.
+- Privileged `fediInternal` v2 calls (`getInstalledMiniApps`, `installMiniApp`) must be user-triggered; handle `manageInstalledMiniApps` denials with actionable copy (see ecash-balance module).
 - Include the dev toolbar mock states so the demo works in a normal browser.
 
 ### 6. Placeholder tokens

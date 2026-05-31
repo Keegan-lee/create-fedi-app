@@ -21,27 +21,36 @@ export function useNostr() {
     provider: ctx.provider,
     pubkey: ctx.pubkey,
     npub,
+    isAvailable: ctx.isAvailable,
     isLoading: ctx.isLoading,
     error: ctx.error,
-    isConnected: ctx.provider !== null,
+    isConnected: ctx.pubkey !== null,
+    connect: ctx.connect,
   };
 }
 
 export function useIdentity() {
-  const { provider, pubkey, npub } = useNostr();
+  const { provider, pubkey, npub, connect } = useNostr();
   const [isConnecting, setIsConnecting] = useState(false);
 
   const displayNpub = npub ? npub.slice(0, 8) + '...' + npub.slice(-4) : null;
 
   async function getPublicKey(): Promise<string | null> {
+    if (pubkey) return pubkey;
     if (!provider) return null;
-    return provider.getPublicKey();
+    setIsConnecting(true);
+    try {
+      return await connect();
+    } finally {
+      setIsConnecting(false);
+    }
   }
 
   async function signEvent(event: UnsignedNostrEvent): Promise<NostrEvent | null> {
     if (!provider) return null;
     setIsConnecting(true);
     try {
+      await getPublicKey();
       return await provider.signEvent(event);
     } finally {
       setIsConnecting(false);

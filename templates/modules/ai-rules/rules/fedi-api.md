@@ -72,6 +72,26 @@ await window.fediInternal.installMiniApp({
 
 Triggers Fedi's native UI to add a Mini App to the user's home screen. Resolves when the user confirms (or rejects) the install prompt.
 
+## Permissions (`manageInstalledMiniApps`)
+
+Both `getInstalledMiniApps()` and `installMiniApp()` require Fedi's **`manageInstalledMiniApps`** permission. Fedi prompts on first call. **Never invoke these methods on page load** — only after a user taps a button.
+
+Detect permission denials with `isFediPermissionError()` from `lib/fedi.ts`:
+
+```ts
+import { isFediPermissionError } from '../lib/fedi';
+
+try {
+  await getInstalledMiniApps!();
+} catch (err) {
+  if (isFediPermissionError(err)) {
+    // Show ManageMiniAppsPermissionHint + manual retry
+  }
+}
+```
+
+If the user denied with "Remember my choice", they must reset the permission in Fedi mini app settings before retrying.
+
 ## useFediInternal() hook
 
 ```ts

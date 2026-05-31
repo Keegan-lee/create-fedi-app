@@ -19,6 +19,6 @@ export const demoRoutes: IDemoRoute[] = [
   {
     href: '/demo/ecash',
     title: 'Ecash Balance',
-    description: 'Read Fedi ecash balance and install mini app prompts.',
+    description: 'fediInternal mini-app discovery, list, and install prompts.',
   },
 ];

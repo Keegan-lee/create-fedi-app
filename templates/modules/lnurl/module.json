@@ -7,6 +7,7 @@
     { "src": "lib/lnurl-utils.ts", "dest": "lib/lnurl-utils.ts", "merge": "add" },
     { "src": "lib/lnurl-store.ts", "dest": "lib/lnurl-store.ts", "merge": "add" },
     { "src": "lib/lnurl-auth-verify.ts", "dest": "lib/lnurl-auth-verify.ts", "merge": "add" },
+    { "src": "components/lnurl/LnurlErrorBoundary.tsx", "dest": "components/lnurl/LnurlErrorBoundary.tsx", "merge": "add" },
     { "src": "components/lnurl/LnurlQR.tsx", "dest": "components/lnurl/LnurlQR.tsx", "merge": "add" },
     { "src": "components/lnurl/LnurlPay.tsx", "dest": "components/lnurl/LnurlPay.tsx", "merge": "add" },
     { "src": "components/lnurl/LnurlAuth.tsx", "dest": "components/lnurl/LnurlAuth.tsx", "merge": "add" },

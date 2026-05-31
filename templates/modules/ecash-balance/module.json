@@ -4,6 +4,7 @@
   "dependencies": [],
   "devDependencies": [],
   "files": [
+    { "src": "components/fedi/ManageMiniAppsPermissionHint.tsx", "dest": "components/fedi/ManageMiniAppsPermissionHint.tsx", "merge": "add" },
     { "src": "components/fedi/BalanceDisplay.tsx", "dest": "components/fedi/BalanceDisplay.tsx", "merge": "add" },
     { "src": "components/fedi/FediVersionBadge.tsx", "dest": "components/fedi/FediVersionBadge.tsx", "merge": "add" },
     { "src": "components/fedi/InstallMiniAppButton.tsx", "dest": "components/fedi/InstallMiniAppButton.tsx", "merge": "add" },

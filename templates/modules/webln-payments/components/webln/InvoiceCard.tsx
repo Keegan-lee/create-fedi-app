@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { QRCodeSVG } from 'qrcode.react';
+import { useState } from 'react';
 import { usePayment } from '../../lib/webln';
 import { formatSats } from '../../lib/payment-history';
+import { InvoiceQr } from '../InvoiceQr';
 
 interface IInvoiceCardProps {
   sats: number;
@@ -12,44 +12,18 @@ interface IInvoiceCardProps {
   onInvoice?: (invoice: string) => void;
 }
 
-function mockPreimage(): string {
-  let result = '';
-  for (let i = 0; i < 64; i++) {
-    result += Math.floor(Math.random() * 16).toString(16);
-  }
-  return result;
-}
-
 export function InvoiceCard({ sats, memo, onPaid, onInvoice }: IInvoiceCardProps) {
   const { makeInvoice, isCreatingInvoice, paymentError, lastInvoice } = usePayment();
   const [copied, setCopied] = useState(false);
-  const [isPaid, setIsPaid] = useState(false);
-  const [paidPreimage, setPaidPreimage] = useState<string | null>(null);
+  const [hasCreated, setHasCreated] = useState(false);
 
-  useEffect(() => {
-    makeInvoice({ amount: String(sats), defaultMemo: memo ?? '' });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sats, memo]);
-
-  useEffect(() => {
-    if (lastInvoice) {
-      onInvoice?.(lastInvoice);
+  async function handleCreateInvoice() {
+    const result = await makeInvoice({ amount: String(sats), defaultMemo: memo ?? '' });
+    if (result?.paymentRequest) {
+      setHasCreated(true);
+      onInvoice?.(result.paymentRequest);
     }
-  }, [lastInvoice, onInvoice]);
-
-  useEffect(() => {
-    if (!lastInvoice || isPaid || isCreatingInvoice) return;
-
-    if (process.env.NODE_ENV === 'development') {
-      const timer = window.setTimeout(() => {
-        const preimage = mockPreimage();
-        setPaidPreimage(preimage);
-        setIsPaid(true);
-        onPaid?.(preimage);
-      }, 5000);
-      return () => window.clearTimeout(timer);
-    }
-  }, [lastInvoice, isPaid, isCreatingInvoice, onPaid]);
+  }
 
   async function handleCopy() {
     if (!lastInvoice) return;
@@ -79,7 +53,23 @@ export function InvoiceCard({ sats, memo, onPaid, onInvoice }: IInvoiceCardProps
         )}
       </div>
 
-      {isCreatingInvoice && (
+      {!hasCreated && !lastInvoice && (
+        <button
+          type="button"
+          onClick={() => void handleCreateInvoice()}
+          disabled={isCreatingInvoice}
+          className="w-full rounded-lg px-4 py-3 text-sm font-semibold transition-opacity duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] hover:opacity-90 active:opacity-80 disabled:opacity-50"
+          style={{
+            background: 'var(--color-accent)',
+            color: 'var(--color-primary-foreground)',
+            borderRadius: 'var(--radius-md)',
+          }}
+        >
+          {isCreatingInvoice ? 'Creating invoice…' : 'Create invoice'}
+        </button>
+      )}
+
+      {isCreatingInvoice && hasCreated === false && (
         <p
           className="text-xs font-mono"
           style={{ color: 'var(--color-text-subtle)' }}
@@ -89,49 +79,12 @@ export function InvoiceCard({ sats, memo, onPaid, onInvoice }: IInvoiceCardProps
         </p>
       )}
 
-      {isPaid && (
-        <div
-          className="flex items-center gap-2 rounded-lg px-3 py-2 transition-opacity duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] opacity-100"
-          style={{
-            background: 'var(--color-accent-dim)',
-            borderRadius: 'var(--radius-md)',
-          }}
-          role="status"
-          aria-label={`Invoice paid: ${formatSats(sats)}`}
-        >
-          <span
-            className="flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold"
-            style={{ background: 'var(--color-accent)', color: 'var(--color-primary-foreground)' }}
-            aria-hidden
-          >
-            ✓
-          </span>
-          <span className="text-sm font-semibold" style={{ color: 'var(--color-accent)' }}>
-            Paid
-          </span>
-        </div>
-      )}
-
-      {lastInvoice && !isCreatingInvoice && !isPaid && (
+      {lastInvoice && !isCreatingInvoice && (
         <>
-          <div
-            className="mx-auto flex w-full max-w-[160px] items-center justify-center rounded-lg p-3"
-            style={{ background: 'var(--color-surface-2)' }}
-            aria-label="Invoice QR code"
-          >
-            <QRCodeSVG
-              value={lastInvoice}
-              size={136}
-              level="M"
-              bgColor="transparent"
-              fgColor="var(--color-text)"
-            />
-          </div>
+          <InvoiceQr value={lastInvoice} label={`Invoice QR for ${formatSats(sats)}`} />
 
           <p className="text-center text-xs" style={{ color: 'var(--color-text-subtle)' }}>
-            {process.env.NODE_ENV === 'development'
-              ? 'Simulated payment in 5 seconds (dev only)'
-              : 'Waiting for payment…'}
+            Share this invoice or pay it from the send section below.
           </p>
 
           <button
@@ -148,12 +101,6 @@ export function InvoiceCard({ sats, memo, onPaid, onInvoice }: IInvoiceCardProps
             {copied ? 'Copied!' : 'Copy invoice'}
           </button>
         </>
-      )}
-
-      {isPaid && paidPreimage && (
-        <p className="font-mono text-xs" style={{ color: 'var(--color-text-muted)' }}>
-          {paidPreimage.slice(0, 12)}…{paidPreimage.slice(-8)}
-        </p>
       )}
 
       {paymentError && (

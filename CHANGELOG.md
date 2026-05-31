@@ -2,6 +2,24 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.1.3]
+
+### Changed
+
+- Wallet interactions are button-triggered only: WebLN `enable()` and Nostr `getPublicKey()` run on explicit connect or pay/sign actions, not on app load
+- ecash-balance: `getInstalledMiniApps` is user-triggered; handles denied `manageInstalledMiniApps` permission with actionable UI
+- Demo Lightning payments use a configurable maintainer LNURL address with small sats amounts (1–21) set via `.env` and CLI prompts
+- Payment-gated content uses real LNURL-pay invoices and verifies preimages against BOLT11 payment hashes
+- LNURL demo uses a static env LNURL for the primary QR (fixes Fedi WebView crash from SSR/hydration mismatch)
+
+### Added
+
+- `payment-config.ts`, `PaymentCallout`, shared `InvoiceQr`, and Lightning utilities (`lnurl-pay`, `bolt11`, `preimage-verify`)
+- CLI prompts for LNURL pay address and per-demo sats amounts
+- LNURL demo error boundaries and maintainer wallet callouts on payment demo pages
+
+[0.1.3]: https://github.com/keeganfrancis/create-fedi-app/releases/tag/v0.1.3
+
 ## [0.1.2] - 2026-05-31
 
 ### Fixed
@@ -77,7 +95,7 @@ Optional (CLI multiselect):
 
 #### Website (`apps/www`)
 
-- Landing page at [fedi.keeganfrancis.com](https://fedi.keeganfrancis.com) with CLI demo, module showcase, and Fedi explainer
+- Landing page at [create-fedi-app.keeganfrancis.com](https://create-fedi-app.keeganfrancis.com) with CLI demo, module showcase, and Fedi explainer
 - Fumadocs documentation: quickstart, CLI reference, Fedi API guides, per-module docs, patterns, testing, and deployment
 
 #### Design and quality

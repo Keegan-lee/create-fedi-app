@@ -1,16 +1,15 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
-import { QRCodeSVG } from 'qrcode.react';
+import { useCallback, useState } from 'react';
 import { PayButton } from '../webln/PayButton';
 import { formatSats } from '../../lib/payment-history';
+import { InvoiceQr } from '../InvoiceQr';
 
 type TInvoiceResponse = {
   paymentId: string;
   invoice: string;
   amountSats: number;
   memo: string;
-  devPreimage?: string;
 };
 
 interface IPayGateProps {
@@ -21,7 +20,7 @@ interface IPayGateProps {
   onUnlocked?: () => void;
 }
 
-type TGateStep = 'loading' | 'ready' | 'verifying' | 'error';
+type TGateStep = 'idle' | 'loading' | 'ready' | 'verifying' | 'error';
 
 /**
  * Paywall UI: blurred preview, server invoice QR, WebLN pay button, and refresh link.
@@ -33,7 +32,7 @@ export function PayGate({
   preview,
   onUnlocked,
 }: IPayGateProps) {
-  const [step, setStep] = useState<TGateStep>('loading');
+  const [step, setStep] = useState<TGateStep>('idle');
   const [invoiceData, setInvoiceData] = useState<TInvoiceResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -63,57 +62,32 @@ export function PayGate({
     [contentId, onUnlocked],
   );
 
-  useEffect(() => {
-    let cancelled = false;
+  async function handlePrepare() {
+    if (step === 'loading') return;
+    setStep('loading');
+    setError(null);
 
-    async function loadInvoice() {
-      setStep('loading');
-      setError(null);
+    const res = await fetch('/api/payment-gate/invoice', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contentId,
+        amountSats: priceSats,
+        memo: memo ?? `Unlock content (${contentId})`,
+      }),
+    });
 
-      const res = await fetch('/api/payment-gate/invoice', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contentId,
-          amountSats: priceSats,
-          memo: memo ?? `Unlock content (${contentId})`,
-        }),
-      });
-
-      if (cancelled) return;
-
-      if (!res.ok) {
-        setError('Could not create invoice');
-        setStep('error');
-        return;
-      }
-
-      const data = (await res.json()) as TInvoiceResponse;
-      setInvoiceData(data);
-      setStep('ready');
-    }
-
-    void loadInvoice();
-    return () => {
-      cancelled = true;
-    };
-  }, [contentId, priceSats, memo]);
-
-  useEffect(() => {
-    if (
-      process.env.NODE_ENV !== 'development' ||
-      !invoiceData?.devPreimage ||
-      step !== 'ready'
-    ) {
+    if (!res.ok) {
+      const data = (await res.json()) as { error?: string };
+      setError(data.error ?? 'Could not create invoice');
+      setStep('error');
       return;
     }
 
-    const timer = window.setTimeout(() => {
-      void verifyPayment(invoiceData.paymentId, invoiceData.devPreimage!);
-    }, 5000);
-
-    return () => window.clearTimeout(timer);
-  }, [invoiceData, step, verifyPayment]);
+    const data = (await res.json()) as TInvoiceResponse;
+    setInvoiceData(data);
+    setStep('ready');
+  }
 
   async function handleCopy() {
     if (!invoiceData?.invoice) return;
@@ -159,6 +133,21 @@ export function PayGate({
           </p>
         </div>
 
+        {step === 'idle' && (
+          <button
+            type="button"
+            onClick={() => void handlePrepare()}
+            className="w-full rounded-lg px-4 py-3 text-sm font-semibold transition-opacity duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] hover:opacity-90 active:opacity-80"
+            style={{
+              background: 'var(--color-accent)',
+              color: 'var(--color-primary-foreground)',
+              borderRadius: 'var(--radius-md)',
+            }}
+          >
+            Unlock for {formatSats(priceSats)}
+          </button>
+        )}
+
         {step === 'loading' && (
           <p
             className="text-xs font-mono"
@@ -179,7 +168,7 @@ export function PayGate({
           </p>
         )}
 
-        {invoiceData && step !== 'loading' && (
+        {invoiceData && step !== 'loading' && step !== 'idle' && (
           <div
             className="rounded-xl p-4 flex flex-col gap-3"
             style={{
@@ -202,24 +191,10 @@ export function PayGate({
               )}
             </div>
 
-            <div
-              className="mx-auto flex w-full max-w-[160px] items-center justify-center rounded-lg p-3"
-              style={{ background: 'var(--color-surface-1)' }}
-              aria-label="Invoice QR code"
-            >
-              <QRCodeSVG
-                value={invoiceData.invoice}
-                size={136}
-                level="M"
-                bgColor="transparent"
-                fgColor="var(--color-text)"
-              />
-            </div>
+            <InvoiceQr value={invoiceData.invoice} label="Payment gate invoice QR" />
 
             <p className="text-center text-xs" style={{ color: 'var(--color-text-subtle)' }}>
-              {process.env.NODE_ENV === 'development'
-                ? 'Simulated payment in 5 seconds (dev only)'
-                : 'Scan with a Lightning wallet or pay below'}
+              Scan with a Lightning wallet or pay below
             </p>
 
             <button

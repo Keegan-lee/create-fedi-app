@@ -1,18 +1,102 @@
 'use client';
 
 import Link from 'next/link';
+import { useState } from 'react';
 import { useWebLN } from '../lib/webln';
 import { useNostr } from '../lib/nostr';
 import { cn } from '../lib/utils';
 
 function ConnectionStatus() {
-  const { provider: weblnProvider, isLoading: weblnLoading } = useWebLN();
-  const { provider: nostrProvider, isLoading: nostrLoading } = useNostr();
+  const {
+    isAvailable: weblnAvailable,
+    isConnected: weblnConnected,
+    isLoading: weblnLoading,
+    connect: connectWebLN,
+    error: weblnError,
+  } = useWebLN();
+  const {
+    isAvailable: nostrAvailable,
+    isConnected: nostrConnected,
+    isLoading: nostrLoading,
+    connect: connectNostr,
+    error: nostrError,
+  } = useNostr();
+  const [isConnectingWebLN, setIsConnectingWebLN] = useState(false);
+  const [isConnectingNostr, setIsConnectingNostr] = useState(false);
+
+  async function handleConnectWebLN() {
+    setIsConnectingWebLN(true);
+    try {
+      await connectWebLN();
+    } finally {
+      setIsConnectingWebLN(false);
+    }
+  }
+
+  async function handleConnectNostr() {
+    setIsConnectingNostr(true);
+    try {
+      await connectNostr();
+    } finally {
+      setIsConnectingNostr(false);
+    }
+  }
 
   return (
-    <div className="flex flex-wrap gap-2">
-      <StatusPill label="WebLN" active={!!weblnProvider} loading={weblnLoading} />
-      <StatusPill label="Nostr" active={!!nostrProvider} loading={nostrLoading} />
+    <div className="space-y-3">
+      <div className="flex flex-wrap gap-2">
+        <StatusPill
+          label="WebLN"
+          active={weblnConnected}
+          loading={weblnLoading}
+          available={weblnAvailable}
+        />
+        <StatusPill
+          label="Nostr"
+          active={nostrConnected}
+          loading={nostrLoading}
+          available={nostrAvailable}
+        />
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {weblnAvailable && !weblnConnected && (
+          <button
+            type="button"
+            onClick={() => void handleConnectWebLN()}
+            disabled={isConnectingWebLN || weblnLoading}
+            className="rounded-lg px-3 py-1.5 text-xs font-semibold transition-opacity duration-200 hover:opacity-80 disabled:opacity-40"
+            style={{
+              background: 'var(--color-surface-1)',
+              border: '1px solid var(--color-border)',
+              color: 'var(--color-text)',
+            }}
+          >
+            {isConnectingWebLN ? 'Connecting WebLN…' : 'Connect WebLN'}
+          </button>
+        )}
+        {nostrAvailable && !nostrConnected && (
+          <button
+            type="button"
+            onClick={() => void handleConnectNostr()}
+            disabled={isConnectingNostr || nostrLoading}
+            className="rounded-lg px-3 py-1.5 text-xs font-semibold transition-opacity duration-200 hover:opacity-80 disabled:opacity-40"
+            style={{
+              background: 'var(--color-surface-1)',
+              border: '1px solid var(--color-border)',
+              color: 'var(--color-text)',
+            }}
+          >
+            {isConnectingNostr ? 'Connecting Nostr…' : 'Connect Nostr'}
+          </button>
+        )}
+      </div>
+
+      {(weblnError || nostrError) && (
+        <p className="text-xs" style={{ color: 'var(--color-error, #ef4444)' }} role="alert">
+          {weblnError?.message ?? nostrError?.message}
+        </p>
+      )}
     </div>
   );
 }
@@ -21,10 +105,12 @@ function StatusPill({
   label,
   active,
   loading,
+  available,
 }: {
   label: string;
   active: boolean;
   loading: boolean;
+  available: boolean;
 }) {
   return (
     <span
@@ -34,7 +120,9 @@ function StatusPill({
           ? 'bg-[var(--color-surface-2)] text-[var(--color-text-subtle)]'
           : active
             ? 'bg-[var(--color-accent-dim)] text-[var(--color-accent)]'
-            : 'bg-[var(--color-surface-2)] text-[var(--color-text-subtle)]',
+            : available
+              ? 'bg-[var(--color-surface-2)] text-[var(--color-text-muted)]'
+              : 'bg-[var(--color-surface-2)] text-[var(--color-text-subtle)]',
       )}
     >
       <span
@@ -48,6 +136,9 @@ function StatusPill({
         )}
       />
       {label}
+      {!loading && !active && available && (
+        <span className="opacity-60">(available)</span>
+      )}
     </span>
   );
 }

@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { cookies } from 'next/headers';
+import { PaymentCallout } from '../../../components/PaymentCallout';
 import { PayGate } from '../../../components/payment-gated/PayGate';
 import { checkPaymentAccess } from '../../../lib/payment-gate';
+import { getDemoGateSats } from '../../../lib/payment-config';
 
 export const metadata: Metadata = {
   title: 'Payment Gate',
@@ -22,7 +24,7 @@ export const metadata: Metadata = {
 };
 
 const CONTENT_ID = 'demo-article';
-const PRICE_SATS = 50;
+const PRICE_SATS = getDemoGateSats();
 
 const ARTICLE_PREVIEW = (
   <article className="space-y-3 px-1 py-2">
@@ -35,8 +37,8 @@ const ARTICLE_PREVIEW = (
       access without accounts or passwords.
     </p>
     <p className="text-sm leading-[1.65] text-[var(--color-text-muted)]">
-      This preview shows the opening paragraphs. The rest of the article covers cookie design,
-      proxy checks at the network boundary, and production hardening tips…
+      This preview shows the opening paragraphs. Pay a small amount of sats to read the rest and
+      test the full paywall flow inside Fedi…
     </p>
   </article>
 );
@@ -52,10 +54,10 @@ const ARTICLE_FULL = (
       access without accounts or passwords.
     </p>
     <p className="text-sm leading-[1.65] text-[var(--color-text-muted)]">
-      In this template, your app generates a BOLT11 invoice on the server and stores the expected
-      preimage alongside the pending payment. When the user pays, they submit that preimage to{' '}
-      <code className="font-mono text-xs">/api/payment-gate/verify</code>. The server marks the
-      invoice paid and sets an HttpOnly cookie signed with HMAC.
+      In this template, your app requests a real BOLT11 invoice from the configured LNURL-pay
+      address, stores the invoice payment hash, and verifies the preimage after{' '}
+      <code className="font-mono text-xs">sendPayment()</code> completes. The server sets an
+      HttpOnly cookie signed with HMAC once verification succeeds.
     </p>
     <p className="text-sm leading-[1.65] text-[var(--color-text-muted)]">
       <code className="font-mono text-xs">proxy.ts</code> runs before protected routes such as{' '}
@@ -63,17 +65,12 @@ const ARTICLE_FULL = (
       missing or invalid, the request is redirected back here. That keeps direct URL access gated
       even when someone bypasses the React paywall UI.
     </p>
-    <p className="text-sm leading-[1.65] text-[var(--color-text-muted)]">
-      For production, replace the in-memory store with your database module, connect a real Lightning
-      node for invoice creation, and rotate <code className="font-mono text-xs">PAYMENT_GATE_SECRET</code>{' '}
-      via Doppler. The client flow stays the same.
-    </p>
     <Link
       href="/demo/payment-gated/article"
       className="inline-block text-sm font-semibold transition-opacity duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] hover:opacity-80"
       style={{ color: 'var(--color-accent)' }}
     >
-      Open proxy-protected route →
+      Open proxy-protected article →
     </Link>
   </article>
 );
@@ -95,7 +92,7 @@ export default async function PaymentGatedDemoPage() {
           ← back
         </Link>
 
-        <header className="mb-8 space-y-2">
+        <header className="mb-6 space-y-2">
           <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold leading-tight text-[var(--color-text)]">
             Payment-gated content
           </h1>
@@ -104,6 +101,8 @@ export default async function PaymentGatedDemoPage() {
             persists in a signed cookie after verification.
           </p>
         </header>
+
+        <PaymentCallout className="mb-8" />
 
         {hasAccess ? (
           <div className="space-y-4">

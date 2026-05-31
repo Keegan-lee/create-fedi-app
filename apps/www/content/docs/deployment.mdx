@@ -95,7 +95,7 @@ await window.fediInternal?.installMiniApp({
 });
 ```
 
-Only works inside Fedi with API v2.
+Only works inside Fedi with API v2. Requires the user to grant **`manageInstalledMiniApps`** when Fedi prompts — call `installMiniApp` from a button click, not on page load.
 
 ## Custom mini app (development)
 

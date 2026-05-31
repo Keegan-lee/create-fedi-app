@@ -1,5 +1,6 @@
 import * as p from '@clack/prompts';
 import type { AiProvider, Database, Module, PackageManager, UserSelections } from './types.js';
+import { DEFAULT_LNURL_PAY_ADDRESS } from './types.js';
 
 function cancelCheck<T>(value: T | symbol): T {
   if (p.isCancel(value)) {
@@ -92,6 +93,20 @@ export async function promptUser(): Promise<UserSelections> {
     }),
   );
 
+  const lnurlPayAddress = cancelCheck(
+    await p.text({
+      message: 'LNURL pay address (demo payments destination)',
+      defaultValue: DEFAULT_LNURL_PAY_ADDRESS,
+      placeholder: 'lnurl1…',
+      validate: (v) => {
+        const value = (v || DEFAULT_LNURL_PAY_ADDRESS).trim();
+        if (!value.toLowerCase().startsWith('lnurl') && !value.startsWith('http')) {
+          return 'Enter a bech32 LNURL (lnurl1…) or HTTPS LNURL-pay endpoint';
+        }
+      },
+    }),
+  );
+
   return {
     projectName: (projectName as string) || 'my-fedi-app',
     database: database as Database,
@@ -99,5 +114,6 @@ export async function promptUser(): Promise<UserSelections> {
     includeAiRules: includeAiRules as boolean,
     aiProvider,
     packageManager: packageManager as PackageManager,
+    lnurlPayAddress: ((lnurlPayAddress as string) || DEFAULT_LNURL_PAY_ADDRESS).trim(),
   };
 }

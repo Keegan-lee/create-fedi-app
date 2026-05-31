@@ -5,6 +5,7 @@ import type {
   PackageManager,
   UserSelections,
 } from './types.js';
+import { DEFAULT_LNURL_PAY_ADDRESS } from './types.js';
 
 const ALL_MODULES: Module[] = [
   'payment-gated-content',
@@ -87,6 +88,9 @@ export function parseCliArgs(argv: string[]): UserSelections | null {
     throw new Error(`Invalid --package-manager: ${packageManagerRaw}`);
   }
 
+  const lnurlPayAddress =
+    getFlagValue(argv, '--lnurl-pay-address') ?? DEFAULT_LNURL_PAY_ADDRESS;
+
   return {
     projectName,
     database,
@@ -94,5 +98,6 @@ export function parseCliArgs(argv: string[]): UserSelections | null {
     includeAiRules,
     aiProvider,
     packageManager: packageManagerRaw as PackageManager,
+    lnurlPayAddress,
   };
 }

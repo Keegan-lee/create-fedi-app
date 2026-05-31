@@ -6,7 +6,7 @@ export type TPaymentRecord = {
   id: string;
   contentId: string;
   invoice: string;
-  preimage: string;
+  paymentHash: string;
   amountSats: number;
   memo: string;
   status: TPaymentStatus;
@@ -22,32 +22,24 @@ function generateId(): string {
   return randomBytes(16).toString('hex');
 }
 
-function generatePreimage(): string {
-  return randomBytes(32).toString('hex');
-}
-
-function buildMockInvoice(amountSats: number, paymentId: string): string {
-  const amountPart = amountSats.toString(16).padStart(6, '0');
-  return `lnbc${amountPart}n1p${paymentId.slice(0, 40)}`;
-}
-
 /**
  * Creates a pending payment record. Uses in-memory storage by default;
  * when DATABASE_URL is set and lib/db exists, the database module can extend this.
  */
 export async function createPaymentRecord(options: {
   contentId: string;
+  invoice: string;
+  paymentHash: string;
   amountSats: number;
   memo: string;
   metadata?: Record<string, string>;
 }): Promise<TPaymentRecord> {
   const id = generateId();
-  const preimage = generatePreimage();
   const record: TPaymentRecord = {
     id,
     contentId: options.contentId,
-    invoice: buildMockInvoice(options.amountSats, id),
-    preimage,
+    invoice: options.invoice,
+    paymentHash: options.paymentHash,
     amountSats: options.amountSats,
     memo: options.memo,
     status: 'pending',
@@ -73,15 +65,6 @@ export async function getPaymentById(id: string): Promise<TPaymentRecord | null>
   }
 
   return record;
-}
-
-export async function getPaymentByPreimage(
-  preimage: string,
-): Promise<TPaymentRecord | null> {
-  for (const record of payments.values()) {
-    if (record.preimage === preimage) return record;
-  }
-  return null;
 }
 
 export async function markPaymentPaid(id: string): Promise<TPaymentRecord | null> {

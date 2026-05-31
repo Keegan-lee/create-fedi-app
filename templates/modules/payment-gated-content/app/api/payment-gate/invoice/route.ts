@@ -20,6 +20,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'amountSats must be a positive number' }, { status: 400 });
   }
 
-  const invoice = await generateInvoice({ contentId, amountSats, memo });
-  return NextResponse.json(invoice);
+  try {
+    const invoice = await generateInvoice({ contentId, amountSats, memo });
+    return NextResponse.json(invoice);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Failed to create invoice';
+    return NextResponse.json({ error: message }, { status: 502 });
+  }
 }

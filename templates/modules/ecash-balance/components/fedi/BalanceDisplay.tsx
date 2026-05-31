@@ -3,6 +3,7 @@
 import { useFediBalance } from '../../hooks/useFediBalance';
 import { FediVersionBadge } from './FediVersionBadge';
 import { InstallMiniAppButton, type IInstallMiniAppProps } from './InstallMiniAppButton';
+import { ManageMiniAppsPermissionHint } from './ManageMiniAppsPermissionHint';
 
 interface IBalanceDisplayProps {
   /** When provided, renders an "Add to Fedi" install prompt (v2 only). */
@@ -44,7 +45,7 @@ function OpenInFediPrompt() {
  * Shows fediInternal version, installed mini apps (v2), and an optional install button.
  */
 export function BalanceDisplay({ installApp }: IBalanceDisplayProps) {
-  const state = useFediBalance();
+  const { state, loadMiniApps } = useFediBalance();
 
   if (state.status === 'loading') {
     return (
@@ -65,7 +66,7 @@ export function BalanceDisplay({ installApp }: IBalanceDisplayProps) {
     return <OpenInFediPrompt />;
   }
 
-  const { version, miniApps, miniAppsError } = state;
+  const { version, miniAppsLoad } = state;
 
   return (
     <div
@@ -96,22 +97,46 @@ export function BalanceDisplay({ installApp }: IBalanceDisplayProps) {
         <div className="space-y-2">
           <p className="text-xs font-medium text-[var(--color-text-subtle)]">
             Installed mini apps
-            {miniApps !== null ? ` (${miniApps.length})` : ''}
+            {miniAppsLoad.status === 'loaded' ? ` (${miniAppsLoad.miniApps.length})` : ''}
           </p>
 
-          {miniAppsError && (
+          {miniAppsLoad.status === 'idle' && (
+            <button
+              type="button"
+              onClick={() => void loadMiniApps()}
+              className="inline-flex w-full items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold transition-opacity duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] hover:opacity-80"
+              style={{
+                background: 'var(--color-surface-2)',
+                border: '1px solid var(--color-border)',
+                color: 'var(--color-text)',
+                borderRadius: 'var(--radius-md)',
+              }}
+            >
+              Load installed apps
+            </button>
+          )}
+
+          {miniAppsLoad.status === 'loading' && (
+            <p className="text-xs text-[var(--color-text-muted)]">Loading installed apps…</p>
+          )}
+
+          {miniAppsLoad.status === 'permissionDenied' && (
+            <ManageMiniAppsPermissionHint onRetry={() => void loadMiniApps()} />
+          )}
+
+          {miniAppsLoad.status === 'error' && (
             <p className="text-xs text-[var(--color-text-muted)]">
-              Could not load installed apps. Try reopening this page inside Fedi.
+              Could not load installed apps. Check your connection and try again.
             </p>
           )}
 
-          {miniApps !== null && miniApps.length === 0 && (
+          {miniAppsLoad.status === 'loaded' && miniAppsLoad.miniApps.length === 0 && (
             <p className="text-xs text-[var(--color-text-muted)]">No mini apps installed yet.</p>
           )}
 
-          {miniApps !== null && miniApps.length > 0 && (
+          {miniAppsLoad.status === 'loaded' && miniAppsLoad.miniApps.length > 0 && (
             <ul className="flex flex-col gap-1.5" aria-label="Installed mini apps">
-              {miniApps.map((app) => (
+              {miniAppsLoad.miniApps.map((app) => (
                 <li key={app.url}>
                   <a
                     href={app.url}

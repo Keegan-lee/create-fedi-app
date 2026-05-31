@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { usePayment } from '../../lib/webln';
+import { getDemoLnurlSats } from '../../lib/payment-config';
 import { LnurlQR } from './LnurlQR';
 
 type TWithdrawRequest = {
@@ -53,7 +54,7 @@ export function LnurlWithdraw({ className }: { className?: string }) {
 
     try {
       const invoiceRes = await makeInvoice({
-        amount: '21',
+        amount: String(getDemoLnurlSats()),
         defaultMemo: request.defaultDescription,
       });
 

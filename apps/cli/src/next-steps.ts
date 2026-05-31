@@ -17,7 +17,7 @@ export function printNextSteps(selections: UserSelections): void {
       `▸ Add http://localhost:3000 as a custom Mini App in Fedi`,
       `▸ window.webln and window.nostr are now injected`,
       ``,
-      `Docs: https://fedi.keeganfrancis.com/docs`,
+      `Docs: https://create-fedi-app.keeganfrancis.com/docs`,
     ].join('\n'),
     'Next steps',
   );

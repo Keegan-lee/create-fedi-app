@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { PayButton } from '../webln/PayButton';
 import { formatSats } from '../../lib/payment-history';
 
@@ -14,7 +14,6 @@ type TInvoiceResponse = {
   invoice: string;
   amountSats: number;
   memo: string;
-  devPreimage?: string;
 };
 
 interface IPaymentGateProps {
@@ -71,26 +70,6 @@ export function PaymentGate({
     return data;
   }, [amountSats, memo, onError]);
 
-  useEffect(() => {
-    if (
-      process.env.NODE_ENV !== 'development' ||
-      !invoiceData?.devPreimage ||
-      step !== 'ready'
-    ) {
-      return;
-    }
-
-    const timer = window.setTimeout(() => {
-      onPaymentConfirmed({
-        paymentId: invoiceData.paymentId,
-        preimage: invoiceData.devPreimage!,
-      });
-      reset();
-    }, 5000);
-
-    return () => window.clearTimeout(timer);
-  }, [invoiceData, step, onPaymentConfirmed, reset]);
-
   async function handlePrepare() {
     if (disabled || step === 'loading') return;
     await requestInvoice();
@@ -141,12 +120,6 @@ export function PaymentGate({
           memo={invoiceData.memo}
           onSuccess={handlePaid}
         />
-      )}
-
-      {process.env.NODE_ENV === 'development' && step === 'ready' && (
-        <p className="text-center text-xs" style={{ color: 'var(--color-text-subtle)' }}>
-          Simulated payment in 5 seconds (dev only)
-        </p>
       )}
 
       {error && (

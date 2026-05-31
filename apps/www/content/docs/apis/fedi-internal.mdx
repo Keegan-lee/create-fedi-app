@@ -41,9 +41,29 @@ const apps = await window.fediInternal!.getInstalledMiniApps();
 ```
 
 | Returns | `Promise<Array<{ url: string }>>` |
-| Errors | Network failure, permission denied |
+| Errors | Network failure, permission denied (`manageInstalledMiniApps`) |
 
-Use this to deep-link between mini apps or show a "related apps" panel.
+Use this to deep-link between mini apps or show a "related apps" panel. **Call only on user gesture** — do not invoke on page load.
+
+## Permissions
+
+Both v2 methods require Fedi's **`manageInstalledMiniApps`** permission. On first call, Fedi shows an Allow/Deny dialog. If the user denies (especially with "Remember my choice"), subsequent calls reject immediately.
+
+Use `isFediPermissionError()` from `lib/fedi.ts` to detect denials:
+
+```typescript
+import { isFediPermissionError } from '../lib/fedi';
+
+try {
+  await window.fediInternal!.getInstalledMiniApps();
+} catch (err) {
+  if (isFediPermissionError(err)) {
+    // Show permission guidance + manual retry button
+  }
+}
+```
+
+See [Fedi permission docs](https://fedibtc.github.io/fedi-docs/docs/mods/developers/intro/#permissions-and-user-approval).
 
 ## installMiniApp(miniApp)
 
@@ -58,7 +78,7 @@ Prompts the user to install a mini app in their Fedi catalog.
 | `description` | `string` | no | Short description |
 
 | Returns | `Promise<void>` |
-| Errors | User cancellation, invalid URL |
+| Errors | User cancellation, invalid URL, permission denied (`manageInstalledMiniApps`) |
 
 ```typescript
 await window.fediInternal!.installMiniApp({
@@ -97,31 +117,45 @@ if (version! < 2) return <p>Update Fedi for mini app discovery</p>;
 Ecash module hook at `hooks/useFediBalance.ts`:
 
 ```typescript
+type TMiniAppsLoadState =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'loaded'; miniApps: Array<{ url: string }> }
+  | { status: 'permissionDenied' }
+  | { status: 'error' };
+
 type TFediBalanceState =
   | { status: 'loading' }
   | { status: 'unavailable' }
   | {
       status: 'ready';
       version: 0 | 1 | 2;
-      miniApps: Array<{ url: string }> | null;
-      miniAppsError: boolean;
+      miniAppsLoad: TMiniAppsLoadState;
     };
+
+function useFediBalance(): {
+  state: TFediBalanceState;
+  loadMiniApps: () => Promise<void>;
+};
 ```
 
-On v2, automatically calls `getInstalledMiniApps()` and surfaces results or `miniAppsError`.
+Detects `fediInternal` version on mount. On v2, call `loadMiniApps()` from a button click so Fedi can prompt for `manageInstalledMiniApps`. Surfaces `permissionDenied` when the user rejects the permission.
 
 ## Degradation pattern
 
 ```tsx
 function MiniAppList() {
-  const fedi = useFediInternal();
+  const { state, loadMiniApps } = useFediBalance();
 
-  if (!fedi.isAvailable) {
-    return null; // or a subtle "Open in Fedi" CTA
+  if (state.status !== 'ready' || state.version < 2) {
+    return null;
   }
 
-  // v0/v1: show version badge only
-  // v2: full mini app list
+  if (state.miniAppsLoad.status === 'idle') {
+    return <button onClick={() => void loadMiniApps()}>Load installed apps</button>;
+  }
+
+  // loaded | permissionDenied | error ...
 }
 ```
 

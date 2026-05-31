@@ -45,7 +45,8 @@ Fedi also injects `window.fediInternal` (optional, versioned) for app-discovery 
 2. **Never install NIP-07 browser extension adapters.** `window.nostr` is already there.
 3. **Always guard injected APIs with `typeof window.X !== 'undefined'`** before calling them — SSR and non-Fedi browsers will not have them.
 4. **This is an App Router project** — components that use browser APIs or React hooks must have `'use client'` at the top.
-5. **Do not add `window.webln.enable()` calls** — the `@create-fedi-app/webln` provider handles this automatically.
+5. **WebLN requires explicit `connect()`** — call `connect()` from `useWebLN()` on user action before payments; do not call `window.webln.enable()` on page load.
+6. **fediInternal v2 methods require user gesture** — never call `getInstalledMiniApps()` or `installMiniApp()` on mount; handle `manageInstalledMiniApps` denials with `isFediPermissionError()`.
 
 ## Links
 

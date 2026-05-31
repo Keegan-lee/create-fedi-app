@@ -1,19 +1,25 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BalanceDisplay } from '../../../components/fedi/BalanceDisplay';
 import { FediVersionBadge } from '../../../components/fedi/FediVersionBadge';
+import type { IInstallMiniAppProps } from '../../../components/fedi/InstallMiniAppButton';
 
-const DEMO_INSTALL_APP = {
+const DEFAULT_INSTALL_APP: IInstallMiniAppProps = {
   id: 'com.create-fedi-app.demo',
-  title: 'Fedi Demo App',
+  title: process.env.NEXT_PUBLIC_APP_NAME ?? 'Fedi Demo App',
   url: 'https://example.com',
   description: 'Sample mini app entry for the ecash-balance demo.',
 };
 
 export default function EcashDemoPage() {
   const [howItWorksOpen, setHowItWorksOpen] = useState(false);
+  const [installApp, setInstallApp] = useState<IInstallMiniAppProps>(DEFAULT_INSTALL_APP);
+
+  useEffect(() => {
+    setInstallApp((prev) => ({ ...prev, url: window.location.origin }));
+  }, []);
 
   return (
     <div className="min-h-dvh bg-[var(--color-bg)] font-[family-name:var(--font-body)] text-[var(--color-text)]">
@@ -49,11 +55,14 @@ export default function EcashDemoPage() {
                 Environment &amp; installed apps
               </h2>
               <p className="text-sm leading-[1.65] text-[var(--color-text-muted)]">
-                On fediInternal v2, lists installed mini app URLs (click to open) and can trigger
-                Fedi&apos;s native install sheet via <code className="font-mono text-xs">installMiniApp()</code>.
+                On fediInternal v2, tap <strong className="text-[var(--color-text)]">Load installed apps</strong>{' '}
+                to list mini app URLs or use{' '}
+                <code className="font-mono text-xs">installMiniApp()</code> to trigger Fedi&apos;s
+                native install sheet. Both require the user to grant{' '}
+                <code className="font-mono text-xs">manageInstalledMiniApps</code> when Fedi prompts.
               </p>
             </div>
-            <BalanceDisplay installApp={DEMO_INSTALL_APP} />
+            <BalanceDisplay installApp={installApp} />
           </section>
 
           <section className="space-y-3">
@@ -99,6 +108,14 @@ export default function EcashDemoPage() {
                   very old builds), <code className="font-mono text-xs">window.fediInternal</code> is{' '}
                   <code className="font-mono text-xs">undefined</code>. Show an &quot;Open in
                   Fedi&quot; prompt instead of failing silently.
+                </p>
+                <p>
+                  <code className="font-mono text-xs">getInstalledMiniApps()</code> and{' '}
+                  <code className="font-mono text-xs">installMiniApp()</code> require Fedi&apos;s{' '}
+                  <code className="font-mono text-xs">manageInstalledMiniApps</code> permission. Call
+                  them only after a user taps a button — Fedi shows Allow/Deny on first use. If the
+                  user denies with &quot;Remember my choice&quot;, reset the permission in Fedi mini
+                  app settings before retrying.
                 </p>
                 <p>
                   Use <code className="font-mono text-xs">installMiniApp()</code> to suggest

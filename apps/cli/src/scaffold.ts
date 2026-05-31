@@ -182,7 +182,29 @@ async function generateEnvLocal(
 
   const content =
     example + (extraLines.length > 0 ? '\n' + extraLines.join('\n') + '\n' : '');
-  await fs.writeFile(envLocal, content, 'utf-8');
+
+  const paymentReplacements: [RegExp, string][] = [
+    [/^LNURL_PAY_ADDRESS=.*$/m, `LNURL_PAY_ADDRESS=${selections.lnurlPayAddress}`],
+    [
+      /^NEXT_PUBLIC_LNURL_PAY_ADDRESS=.*$/m,
+      `NEXT_PUBLIC_LNURL_PAY_ADDRESS=${selections.lnurlPayAddress}`,
+    ],
+  ];
+
+  let finalContent = content;
+  for (const [pattern, replacement] of paymentReplacements) {
+    finalContent = finalContent.replace(pattern, replacement);
+  }
+
+  await fs.writeFile(envLocal, finalContent, 'utf-8');
+}
+
+/** npm pack omits dotfiles named `.gitignore`; template ships as `gitignore`. */
+async function applyGitignore(baseDir: string, targetDir: string): Promise<void> {
+  const src = path.join(baseDir, 'gitignore');
+  if (!(await fs.pathExists(src))) return;
+  await fs.copy(src, path.join(targetDir, '.gitignore'), { overwrite: true });
+  await fs.remove(path.join(targetDir, 'gitignore'));
 }
 
 export async function scaffold(
@@ -196,6 +218,7 @@ export async function scaffold(
 
   if (await fs.pathExists(baseDir)) {
     await fs.copy(baseDir, targetDir, { overwrite: true });
+    await applyGitignore(baseDir, targetDir);
   }
 
   await replaceInFiles(targetDir, [

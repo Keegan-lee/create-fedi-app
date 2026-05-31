@@ -2,14 +2,16 @@
 
 import Link from 'next/link';
 import { useCallback, useState } from 'react';
+import { PaymentCallout } from '../../../components/PaymentCallout';
 import { PayButton } from '../../../components/webln/PayButton';
 import { InvoiceCard } from '../../../components/webln/InvoiceCard';
 import { PaymentHistory } from '../../../components/webln/PaymentHistory';
 import { usePaymentFlow } from '../../../hooks/usePaymentFlow';
 import { addPaymentRecord } from '../../../lib/payment-history';
+import { getDemoWeblnSats } from '../../../lib/payment-config';
 
-const DEMO_SATS = 21;
-const DEMO_MEMO = 'demo payment';
+const DEMO_SATS = getDemoWeblnSats();
+const DEMO_MEMO = 'create-fedi-app demo';
 
 export default function WeblnDemoPage() {
   const { recordReceivedPayment } = usePaymentFlow();
@@ -51,15 +53,17 @@ export default function WeblnDemoPage() {
           ← back
         </Link>
 
-        <header className="mb-8 space-y-2">
+        <header className="mb-6 space-y-2">
           <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold leading-tight text-[var(--color-text)]">
             WebLN Payments
           </h1>
           <p className="max-w-[75ch] text-sm leading-[1.65] text-[var(--color-text-muted)]">
-            Send and receive Lightning payments through the WebLN browser API. Inside Fedi, your
-            wallet is injected automatically. No extensions required.
+            Send and receive Lightning payments through the WebLN browser API. Connect your wallet
+            with the buttons below — nothing prompts until you tap.
           </p>
         </header>
+
+        <PaymentCallout className="mb-8" />
 
         <div className="space-y-8">
           <section className="space-y-4">
@@ -68,7 +72,7 @@ export default function WeblnDemoPage() {
                 Receive payment
               </h2>
               <p className="text-sm leading-[1.65] text-[var(--color-text-muted)]">
-                Creates a BOLT11 invoice via <code className="font-mono text-xs">makeInvoice()</code>.
+                Tap create invoice to call <code className="font-mono text-xs">makeInvoice()</code>.
                 Scan the QR code or copy the invoice string to pay.
               </p>
             </div>
@@ -98,7 +102,9 @@ export default function WeblnDemoPage() {
                 onSuccess={handlePaySuccess}
               />
             ) : (
-              <p className="text-sm text-[var(--color-text-subtle)]">Waiting for invoice…</p>
+              <p className="text-sm text-[var(--color-text-subtle)]">
+                Create an invoice above, then pay it here.
+              </p>
             )}
           </section>
 

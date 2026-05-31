@@ -9,6 +9,8 @@ test('webln demo: generate invoice, pay, and see success', async ({ page }) => {
 
   await expect(page.getByRole('heading', { name: 'WebLN Payments' })).toBeVisible();
 
+  await page.getByRole('button', { name: /create invoice/i }).click();
+
   // Wait for invoice generation and QR to appear
   await expect(page.getByRole('button', { name: /copy invoice/i })).toBeVisible({
     timeout: 10_000,

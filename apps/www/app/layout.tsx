@@ -21,7 +21,7 @@ const mono = JetBrains_Mono({
   display: 'swap',
 });
 
-const siteUrl = 'https://fedi.keeganfrancis.com';
+const siteUrl = 'https://create-fedi-app.keeganfrancis.com';
 
 export const metadata: Metadata = {
   title: 'Build on Fedi',
