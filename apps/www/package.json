@@ -6,6 +6,8 @@
     "build": "next build",
     "dev": "next dev --turbopack",
     "start": "next start",
+    "postinstall": "fumadocs-mdx",
+    "pretypecheck": "fumadocs-mdx",
     "typecheck": "tsc --noEmit",
     "lint": "eslint app/"
   },

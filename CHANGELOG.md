@@ -7,6 +7,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ### Fixed
 
 - Add Node shebang to CLI bundle so `npx create-fedi-app` runs under Node instead of the shell
+- Generate fumadocs `.source` on install and before `www` typecheck so CI passes without a prior dev build
 
 ## [0.1.0] - 2026-05-31
 
