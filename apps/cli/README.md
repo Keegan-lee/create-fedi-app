@@ -153,7 +153,7 @@ Prepare: app name, production HTTPS URL, short description, square icon (min 256
 - [Documentation](https://create-fedi-app.keeganfrancis.com/docs)
 - [Quickstart](https://create-fedi-app.keeganfrancis.com/docs/quickstart)
 - [Deployment guide](https://create-fedi-app.keeganfrancis.com/docs/deployment)
-- [Source repository](https://github.com/keeganfrancis/create-fedi-app)
+- [Source repository](https://github.com/keegan-lee/create-fedi-app)
 - [Fedi developer docs](https://fedibtc.github.io/fedi-docs/)
 
 ## License

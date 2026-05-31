@@ -7,7 +7,7 @@ Thanks for helping improve the Fedi mini app scaffolder. This guide covers monor
 **Requirements:** Bun 1.2+, Node 22+ (for some tooling), Git.
 
 ```bash
-git clone https://github.com/keeganfrancis/create-fedi-app.git
+git clone https://github.com/keegan-lee/create-fedi-app.git
 cd create-fedi-app
 bun install
 ```

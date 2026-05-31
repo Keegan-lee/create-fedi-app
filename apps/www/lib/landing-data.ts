@@ -1,6 +1,6 @@
 export const INSTALL_COMMAND = 'npx create-fedi-app@latest';
 
-export const GITHUB_URL = 'https://github.com/keeganfrancis/create-fedi-app';
+export const GITHUB_URL = 'https://github.com/keegan-lee/create-fedi-app';
 
 /** Base scaffold capabilities (always included). */
 export const BASE_FEATURES = [

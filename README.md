@@ -68,7 +68,7 @@ Three modules are always included. The rest are optional at scaffold time.
 Clone the monorepo and install dependencies with [Bun](https://bun.sh):
 
 ```bash
-git clone https://github.com/keeganfrancis/create-fedi-app.git
+git clone https://github.com/keegan-lee/create-fedi-app.git
 cd create-fedi-app
 bun install
 ```

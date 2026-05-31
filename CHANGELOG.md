@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.1.4]
+
+### Changed
+
+- fix dev maintainers github url throughout the project
+
+[0.1.4]: https://github.com/keegan-lee/create-fedi-app/releases/tag/v0.1.4
+
 ## [0.1.3]
 
 ### Changed
@@ -18,7 +26,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - CLI prompts for LNURL pay address and per-demo sats amounts
 - LNURL demo error boundaries and maintainer wallet callouts on payment demo pages
 
-[0.1.3]: https://github.com/keeganfrancis/create-fedi-app/releases/tag/v0.1.3
+[0.1.3]: https://github.com/keegan-lee/create-fedi-app/releases/tag/v0.1.3
 
 ## [0.1.2] - 2026-05-31
 
@@ -28,7 +36,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - Add missing `--color-surface-1` design token used by module demo components
 - Implement `/demo` hub with links to all selected module demos; CLI generates `lib/demo-routes.ts` at scaffold time
 
-[0.1.2]: https://github.com/keeganfrancis/create-fedi-app/releases/tag/v0.1.2
+[0.1.2]: https://github.com/keegan-lee/create-fedi-app/releases/tag/v0.1.2
 
 ## [0.1.1] - 2026-05-31
 
@@ -37,7 +45,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - Add Node shebang to CLI bundle so `npx create-fedi-app` runs under Node instead of the shell
 - Generate fumadocs `.source` on install and before `www` typecheck so CI passes without a prior dev build
 
-[0.1.1]: https://github.com/keeganfrancis/create-fedi-app/releases/tag/v0.1.1
+[0.1.1]: https://github.com/keegan-lee/create-fedi-app/releases/tag/v0.1.1
 
 ## [0.1.0] - 2026-05-31
 
@@ -117,4 +125,4 @@ Optional (CLI multiselect):
 - `InstallMiniAppButton`: narrowed null check for `installMiniApp` before async handler
 - `useMultispendDemo`: explicit status type to allow state transitions beyond literal `'open'`
 
-[0.1.0]: https://github.com/keeganfrancis/create-fedi-app/releases/tag/v0.1.0
+[0.1.0]: https://github.com/keegan-lee/create-fedi-app/releases/tag/v0.1.0
