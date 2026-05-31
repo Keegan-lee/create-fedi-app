@@ -1,4 +1,4 @@
-import { CLI_DEMO } from '../../lib/landing-data';
+import { CliTerminal } from './CliTerminal';
 
 export function CliDemoSection() {
   return (
@@ -7,24 +7,38 @@ export function CliDemoSection() {
       className="border-t border-[var(--color-border)]"
       aria-labelledby="cli-heading"
     >
-      <div className="mx-auto max-w-5xl px-6 py-16 md:py-20">
-        <h2
-          id="cli-heading"
-          className="font-[family-name:var(--font-display)] text-2xl font-semibold text-[var(--color-text)] md:text-3xl"
-        >
-          CLI walkthrough
-        </h2>
-        <p className="mt-3 max-w-[65ch] text-[var(--color-text-muted)]">
-          Six prompts. Defaults are sensible. You can scaffold a working mini app in under a
-          minute.
-        </p>
+      <div className="mx-auto max-w-6xl px-6 py-20 md:py-28">
+        <div className="grid gap-12 lg:grid-cols-2 lg:items-start lg:gap-16">
+          <div>
+            <h2
+              id="cli-heading"
+              className="font-display text-[clamp(1.75rem,4vw,2.25rem)] font-semibold leading-tight"
+            >
+              Six prompts to a working app
+            </h2>
+            <p className="mt-4 max-w-[42ch] text-[var(--color-text-muted)] leading-[1.65]">
+              Pick your database, toggle optional modules, choose a package manager.
+              Defaults are sensible. Most scaffolds finish in under a minute.
+            </p>
 
-        <pre
-          className="mt-10 overflow-x-auto rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-6 font-mono text-[0.8125rem] leading-[1.7] text-[var(--color-text-muted)] sm:text-sm"
-          aria-label="Example create-fedi-app CLI session"
-        >
-          {CLI_DEMO}
-        </pre>
+            <ul className="mt-8 space-y-3 text-sm text-[var(--color-text-muted)]">
+              <li className="flex gap-3">
+                <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-[var(--color-accent)]" />
+                WebLN, Nostr, and ecash modules always included
+              </li>
+              <li className="flex gap-3">
+                <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-[var(--color-accent)]" />
+                Dependencies resolve automatically per module
+              </li>
+              <li className="flex gap-3">
+                <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-[var(--color-accent)]" />
+                AI rules directory optional for Cursor and Claude Code
+              </li>
+            </ul>
+          </div>
+
+          <CliTerminal />
+        </div>
       </div>
     </section>
   );

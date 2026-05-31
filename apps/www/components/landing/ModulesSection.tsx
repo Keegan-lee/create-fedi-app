@@ -7,27 +7,35 @@ export function ModulesSection() {
       className="border-t border-[var(--color-border)] bg-[var(--color-surface)]"
       aria-labelledby="modules-heading"
     >
-      <div className="mx-auto max-w-5xl px-6 py-16 md:py-20">
-        <h2
-          id="modules-heading"
-          className="font-[family-name:var(--font-display)] text-2xl font-semibold text-[var(--color-text)] md:text-3xl"
-        >
-          Module showcase
-        </h2>
-        <p className="mt-3 max-w-[65ch] text-[var(--color-text-muted)]">
-          Optional modules you toggle at scaffold time. Dependencies resolve automatically.
-        </p>
+      <div className="mx-auto max-w-6xl px-6 py-20 md:py-28">
+        <div className="max-w-[42ch]">
+          <h2
+            id="modules-heading"
+            className="font-display text-[clamp(1.75rem,4vw,2.25rem)] font-semibold leading-tight"
+          >
+            Optional modules
+          </h2>
+          <p className="mt-4 text-[var(--color-text-muted)]">
+            Toggle at scaffold time. Each module merges templates, routes, and env vars into your
+            project.
+          </p>
+        </div>
 
-        <ul className="mt-10 space-y-0 divide-y divide-[var(--color-border)]">
+        <ul className="mt-12 grid gap-px overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-border)] sm:grid-cols-2">
           {OPTIONAL_MODULES.map((mod) => (
-            <li key={mod.name} className="py-5">
-              <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
-                <span className="font-mono text-sm text-[var(--color-text)]">{mod.name}</span>
-                <span className="shrink-0 font-mono text-xs text-[var(--color-text-subtle)]">
-                  requires: {mod.requires}
+            <li
+              key={mod.name}
+              className="flex flex-col bg-[var(--color-surface)] p-6 transition-colors duration-200 ease-out-quart hover:bg-[var(--color-surface-2)]"
+            >
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <span className="font-display text-[0.9375rem] font-medium text-[var(--color-text)]">
+                  {mod.name}
+                </span>
+                <span className="rounded-sm bg-[var(--color-bg)] px-2 py-0.5 font-mono text-[0.6875rem] text-[var(--color-text-subtle)]">
+                  {mod.requires}
                 </span>
               </div>
-              <p className="mt-2 max-w-[65ch] text-sm leading-[1.65] text-[var(--color-text-muted)]">
+              <p className="mt-3 flex-1 text-sm leading-[1.65] text-[var(--color-text-muted)]">
                 {mod.description}
               </p>
             </li>

@@ -1,28 +1,31 @@
 @import "tailwindcss";
-@import "@tailwindcss/typography";
-@import "fumadocs-ui/css/preset.css";
+@import "fumadocs-ui/css/lib/default-colors.css";
 
+@source "../components/**/*.{ts,tsx}";
+@source "../app/**/*.{ts,tsx}";
 @source "../../../packages/ui/src/**/*.{ts,tsx}";
+@source "../../../node_modules/fumadocs-ui/dist/**/*.js";
 @source "../node_modules/fumadocs-ui/dist/**/*.js";
 
 @theme {
-  /* Fedi palette */
-  --color-bg: #0a0a0a;
-  --color-surface: #141414;
-  --color-surface-2: #1c1c1c;
-  --color-border: rgba(255, 255, 255, 0.08);
-  --color-accent: #ff6b35;
-  --color-accent-dim: rgba(255, 107, 53, 0.15);
-  --color-text: #f0eee9;
-  --color-text-muted: #8a8880;
-  --color-text-subtle: #4a4845;
-  --color-success: #3d8b5f;
-  --color-destructive: #dc2626;
+  /* Fedi palette — OKLCH, warm-tinted neutrals */
+  --color-bg: oklch(0.145 0.008 55);
+  --color-surface: oklch(0.185 0.008 55);
+  --color-surface-2: oklch(0.225 0.008 55);
+  --color-border: oklch(0.95 0.005 55 / 0.08);
+  --color-accent: oklch(0.68 0.19 45);
+  --color-accent-dim: oklch(0.68 0.19 45 / 0.15);
+  --color-accent-glow: oklch(0.68 0.19 45 / 0.12);
+  --color-text: oklch(0.93 0.012 75);
+  --color-text-muted: oklch(0.62 0.012 75);
+  --color-text-subtle: oklch(0.42 0.01 75);
+  --color-success: oklch(0.58 0.12 155);
+  --color-destructive: oklch(0.55 0.22 25);
 
   --color-background: var(--color-bg);
   --color-foreground: var(--color-text);
   --color-primary: var(--color-accent);
-  --color-primary-foreground: var(--color-text);
+  --color-primary-foreground: var(--color-bg);
   --color-secondary: var(--color-surface-2);
   --color-secondary-foreground: var(--color-text);
   --color-muted: var(--color-surface);
@@ -39,7 +42,7 @@
   --radius-lg: 12px;
   --radius: 8px;
 
-  /* Fumadocs theme — mapped to Fedi tokens (dark-only) */
+  /* Fumadocs theme — mapped to Fedi tokens */
   --color-fd-background: var(--color-bg);
   --color-fd-foreground: var(--color-text);
   --color-fd-muted: var(--color-surface);
@@ -56,7 +59,10 @@
   --color-fd-accent: var(--color-accent-dim);
   --color-fd-accent-foreground: var(--color-accent);
   --color-fd-ring: var(--color-accent);
+  --color-fd-overlay: oklch(0 0 0 / 0.4);
 }
+
+@import "fumadocs-ui/css/preset.css";
 
 @theme inline {
   --font-display: var(--font-display, "Bricolage Grotesque", system-ui, sans-serif);
@@ -82,6 +88,11 @@
     scroll-behavior: smooth;
   }
 
+  ::selection {
+    background-color: var(--color-accent-dim);
+    color: var(--color-text);
+  }
+
   h1,
   h2,
   h3,
@@ -90,7 +101,7 @@
   h6 {
     font-family: var(--font-display);
     color: var(--color-text);
-    line-height: 1.25;
+    line-height: 1.2;
   }
 
   code,
@@ -104,4 +115,65 @@
     outline: 2px solid var(--color-accent);
     outline-offset: 2px;
   }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  .font-body {
+    font-family: var(--font-body);
+  }
+
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+
+  .landing-glow {
+    background-image: radial-gradient(
+      ellipse 80% 50% at 50% -20%,
+      var(--color-accent-glow),
+      transparent 70%
+    );
+  }
+
+  .landing-grid {
+    background-image:
+      linear-gradient(var(--color-border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--color-border) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: linear-gradient(to bottom, oklch(0 0 0 / 0.4), transparent 80%);
+  }
+
+  .ease-out-quart {
+    transition-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@utility animate-fade-up {
+  animation: fade-up 0.6s cubic-bezier(0.25, 1, 0.5, 1) both;
+}
+
+@utility animate-fade-up-delay-1 {
+  animation: fade-up 0.6s cubic-bezier(0.25, 1, 0.5, 1) 0.1s both;
+}
+
+@utility animate-fade-up-delay-2 {
+  animation: fade-up 0.6s cubic-bezier(0.25, 1, 0.5, 1) 0.2s both;
+}
+
+@utility animate-fade-up-delay-3 {
+  animation: fade-up 0.6s cubic-bezier(0.25, 1, 0.5, 1) 0.3s both;
 }

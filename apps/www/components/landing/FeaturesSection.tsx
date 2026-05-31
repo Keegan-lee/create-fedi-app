@@ -7,28 +7,36 @@ export function FeaturesSection() {
       className="border-t border-[var(--color-border)] bg-[var(--color-surface)]"
       aria-labelledby="features-heading"
     >
-      <div className="mx-auto max-w-5xl px-6 py-16 md:py-20">
-        <h2
-          id="features-heading"
-          className="font-[family-name:var(--font-display)] text-2xl font-semibold text-[var(--color-text)] md:text-3xl"
-        >
-          What it gives you
-        </h2>
-        <p className="mt-3 max-w-[65ch] text-[var(--color-text-muted)]">
-          Every generated project includes these pieces. No extra prompts required.
-        </p>
-
-        <dl className="mt-10 divide-y divide-[var(--color-border)]">
-          {BASE_FEATURES.map((feature) => (
-            <div
-              key={feature.name}
-              className="grid gap-2 py-5 sm:grid-cols-[minmax(9rem,14rem)_1fr] sm:gap-8"
+      <div className="mx-auto max-w-6xl px-6 py-20 md:py-28">
+        <div className="grid gap-12 md:grid-cols-[minmax(0,16rem)_1fr] md:gap-20">
+          <div className="md:sticky md:top-28 md:self-start">
+            <h2
+              id="features-heading"
+              className="font-display text-[clamp(1.75rem,4vw,2.25rem)] font-semibold leading-tight"
             >
-              <dt className="font-mono text-sm text-[var(--color-accent)]">{feature.name}</dt>
-              <dd className="text-[var(--color-text-muted)] leading-[1.65]">{feature.description}</dd>
-            </div>
-          ))}
-        </dl>
+              What it gives you
+            </h2>
+            <p className="mt-4 text-[var(--color-text-muted)]">
+              Every generated project ships with these. No extra prompts.
+            </p>
+          </div>
+
+          <dl className="divide-y divide-[var(--color-border)]">
+            {BASE_FEATURES.map((feature) => (
+              <div
+                key={feature.name}
+                className="grid gap-3 py-6 first:pt-0 last:pb-0 sm:grid-cols-[1fr_1.4fr] sm:gap-10"
+              >
+                <dt className="font-display text-base font-medium text-[var(--color-text)]">
+                  {feature.name}
+                </dt>
+                <dd className="text-[var(--color-text-muted)] leading-[1.65]">
+                  {feature.description}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
       </div>
     </section>
   );
