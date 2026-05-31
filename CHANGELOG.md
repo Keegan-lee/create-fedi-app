@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.1.1] - 2026-05-31
+
+### Fixed
+
+- Add Node shebang to CLI bundle so `npx create-fedi-app` runs under Node instead of the shell
+
 ## [0.1.0] - 2026-05-31
 
 First public release of `create-fedi-app` — a CLI scaffolder for Fedi Bitcoin mini apps built on Next.js 16.

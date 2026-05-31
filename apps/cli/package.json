@@ -1,6 +1,6 @@
 {
   "name": "create-fedi-app",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "CLI scaffolder for Fedi Bitcoin mini apps",
   "bin": {
     "create-fedi-app": "./dist/index.js"
