@@ -1,0 +1,24 @@
+{
+  "name": "payment-gated-content",
+  "description": "Lock content behind a lightning payment gate",
+  "dependencies": [],
+  "devDependencies": [],
+  "files": [
+    { "src": "proxy.ts", "dest": "proxy.ts", "merge": "replace" },
+    { "src": "lib/payment-gate.ts", "dest": "lib/payment-gate.ts", "merge": "add" },
+    { "src": "lib/payment-store.ts", "dest": "lib/payment-store.ts", "merge": "add" },
+    { "src": "components/payment-gated/PayGate.tsx", "dest": "components/payment-gated/PayGate.tsx", "merge": "add" },
+    { "src": "app/api/payment-gate/invoice/route.ts", "dest": "app/api/payment-gate/invoice/route.ts", "merge": "add" },
+    { "src": "app/api/payment-gate/verify/route.ts", "dest": "app/api/payment-gate/verify/route.ts", "merge": "add" },
+    { "src": "app/demo/payment-gated/page.tsx", "dest": "app/demo/payment-gated/page.tsx", "merge": "add" },
+    { "src": "app/demo/payment-gated/article/page.tsx", "dest": "app/demo/payment-gated/article/page.tsx", "merge": "add" }
+  ],
+  "envVars": [
+    {
+      "key": "PAYMENT_GATE_SECRET",
+      "description": "HMAC secret for signing payment access cookies",
+      "example": "replace-with-a-long-random-string",
+      "required": false
+    }
+  ]
+}

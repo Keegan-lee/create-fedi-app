@@ -1,0 +1,75 @@
+---
+title: ai-assistant
+description: Optional module — free-form AI chat using Vercel AI SDK with Anthropic, OpenAI, Groq, or Ollama providers.
+---
+
+Unmetered AI assistant without Lightning payments. Uses the same provider factory as `ai-chat-gated` but skips the payment gate.
+
+## Files added
+
+| File | Purpose |
+| --- | --- |
+| `lib/ai/providers.ts` | Provider factory (shared pattern with ai-chat-gated) |
+| `components/ai/AssistantProvider.tsx` | Chat context wrapper |
+| `components/ai/Assistant.tsx` | Streaming chat UI |
+| `app/api/assistant/route.ts` | POST — streamText without payment |
+| `app/demo/assistant/page.tsx` | Demo page |
+
+## Dependencies
+
+- `ai`, `@ai-sdk/react`, `react-markdown`
+- `@ai-sdk/anthropic`, `@ai-sdk/openai`, `@ai-sdk/groq`, `ollama-ai-provider`
+
+## Environment variables
+
+| Key | Required | Description |
+| --- | --- | --- |
+| `AI_PROVIDER` | yes | `anthropic` \| `openai` \| `groq` \| `ollama` |
+| `AI_API_KEY` | yes* | Provider API key |
+| `AI_MODEL` | no | Model override (e.g. `claude-sonnet-4-6`) |
+| `AI_BASE_URL` | no | Custom endpoint for Ollama |
+
+## Provider selection
+
+`lib/ai/providers.ts` reads `AI_PROVIDER` and returns the matching `@ai-sdk/*` model:
+
+```typescript
+// Simplified
+export function getModel() {
+  switch (process.env.AI_PROVIDER) {
+    case 'anthropic': return anthropic(process.env.AI_MODEL ?? 'claude-sonnet-4-6');
+    case 'openai': return openai(process.env.AI_MODEL ?? 'gpt-4o');
+    case 'groq': return groq(process.env.AI_MODEL ?? 'llama-3.3-70b-versatile');
+    case 'ollama': return ollama(process.env.AI_MODEL ?? 'llama3.2');
+  }
+}
+```
+
+## API route
+
+### POST /api/assistant
+
+Standard Vercel AI SDK streaming endpoint. No payment verification.
+
+```typescript
+import { streamText } from 'ai';
+import { getModel } from '@/lib/ai/providers';
+
+export async function POST(req: Request) {
+  const { messages } = await req.json();
+  const result = streamText({ model: getModel(), messages });
+  return result.toDataStreamResponse();
+}
+```
+
+## Assistant component
+
+Uses `@ai-sdk/react` `useChat` hook connected to `/api/assistant`. Markdown rendering via `react-markdown`.
+
+## Demo route
+
+`/demo/assistant` — full chat interface. Requires valid `AI_API_KEY` in `.env.local`.
+
+## Combining with payments
+
+For sats-per-message, use [ai-chat-gated](/docs/modules/ai-chat-gated) instead. You can run both modules — gated for premium model, assistant for free tier.

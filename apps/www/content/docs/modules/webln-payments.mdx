@@ -1,0 +1,64 @@
+---
+title: webln-payments
+description: Always-on module — PayButton, InvoiceCard, payment history, and /demo/webln payment flow demos.
+---
+
+The `webln-payments` module adds UI components and hooks on top of the base WebLN provider. It applies to every scaffolded project.
+
+## Files added
+
+| File | Purpose |
+| --- | --- |
+| `components/webln/PayButton.tsx` | One-click pay with loading/error states |
+| `components/webln/InvoiceCard.tsx` | Display BOLT11 with QR code |
+| `components/webln/PaymentHistory.tsx` | Local payment history list |
+| `hooks/usePaymentFlow.ts` | Orchestrates invoice → pay → preimage flow |
+| `lib/payment-history.ts` | localStorage-backed payment log |
+| `app/demo/webln/page.tsx` | Interactive demo page |
+
+## Dependencies
+
+- `qrcode.react` — invoice QR rendering
+
+## usePaymentFlow
+
+```typescript
+function usePaymentFlow(): {
+  invoice: string | null;
+  preimage: string | null;
+  isLoading: boolean;
+  error: string | null;
+  createAndPay: (amountSats: number, memo?: string) => Promise<boolean>;
+  payExisting: (paymentRequest: string) => Promise<boolean>;
+  reset: () => void;
+}
+```
+
+`createAndPay` calls `makeInvoice` then `sendPayment` in sequence — useful for self-payment demos. `payExisting` pays a server-generated invoice.
+
+## PayButton
+
+```tsx
+<PayButton
+  paymentRequest="lnbc100n1..."
+  onSuccess={(preimage) => console.log(preimage)}
+  onError={(err) => console.error(err)}
+/>
+```
+
+Props:
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `paymentRequest` | `string` | BOLT11 to pay |
+| `onSuccess` | `(preimage: string) => void` | Called with payment preimage |
+| `onError` | `(error: Error) => void` | Payment failure callback |
+| `disabled` | `boolean` | Disable button |
+
+## Demo route
+
+`/demo/webln` — create invoices, pay with WebLN, view payment history. Enable mock WebLN in the dev toolbar for browser testing.
+
+## See also
+
+- [WebLN API reference](/docs/apis/webln)

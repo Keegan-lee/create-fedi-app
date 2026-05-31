@@ -1,0 +1,25 @@
+{
+  "name": "nostr-feed",
+  "description": "Read and post to a Nostr relay",
+  "dependencies": ["nostr-tools", "react-markdown"],
+  "devDependencies": [],
+  "files": [
+    { "src": "lib/nostr/relay.ts", "dest": "lib/nostr/relay.ts", "merge": "add" },
+    { "src": "lib/nostr-zap.ts", "dest": "lib/nostr-zap.ts", "merge": "add" },
+    { "src": "components/nostr/NostrFeedProvider.tsx", "dest": "components/nostr/NostrFeedProvider.tsx", "merge": "add" },
+    { "src": "components/nostr/NoteFeed.tsx", "dest": "components/nostr/NoteFeed.tsx", "merge": "add" },
+    { "src": "components/nostr/NoteCard.tsx", "dest": "components/nostr/NoteCard.tsx", "merge": "add" },
+    { "src": "components/nostr/PublishNote.tsx", "dest": "components/nostr/PublishNote.tsx", "merge": "add" },
+    { "src": "components/nostr/ZapButton.tsx", "dest": "components/nostr/ZapButton.tsx", "merge": "add" },
+    { "src": "app/demo/nostr-feed/page.tsx", "dest": "app/demo/nostr-feed/page.tsx", "merge": "add" },
+    { "src": "app/demo/nostr-feed/NostrFeedDemoClient.tsx", "dest": "app/demo/nostr-feed/NostrFeedDemoClient.tsx", "merge": "add" }
+  ],
+  "envVars": [
+    {
+      "key": "NEXT_PUBLIC_NOSTR_RELAY",
+      "description": "Nostr relay WebSocket URL(s), comma-separated",
+      "example": "wss://relay.damus.io,wss://relay.nostr.band",
+      "required": false
+    }
+  ]
+}

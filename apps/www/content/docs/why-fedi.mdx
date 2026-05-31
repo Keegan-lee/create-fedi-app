@@ -1,0 +1,43 @@
+---
+title: Why Fedi?
+description: Fedi is a mobile Lightning wallet with a mini app browser. Build apps that send sats, sign Nostr events, and read ecash balance — without leaving the wallet.
+---
+
+Fedi is a self-custodial mobile wallet built on [Fedimint](https://fedimint.org) federations. Users hold ecash backed by a federation's Lightning node, send/receive sats, and browse **mini apps** — web apps loaded in an in-app WebView with injected browser APIs.
+
+## Why mini apps instead of a standalone site?
+
+A standalone website cannot access the user's Lightning balance or Nostr keys without custom auth flows, custodial accounts, or browser extensions. Inside Fedi's WebView:
+
+- **`window.webln`** — send Lightning payments, create invoices, sign messages with the user's federation wallet
+- **`window.nostr`** — NIP-07 signing for identity, posts, and zaps without OAuth
+- **`window.fediInternal`** — read installed mini apps, trigger installs, detect API version
+
+A tip jar on a blog, a paywalled article, a Nostr-powered comment thread, or a sats-per-message AI chat all need wallet access. Mini apps get that access by default.
+
+## Real use cases
+
+**Micropayments without accounts.** A news mini app charges 50 sats per article. The user taps Pay, Fedi signs the invoice via WebLN, and the server verifies the preimage. No email signup, no stored card.
+
+**Social identity without passwords.** A marketplace mini app reads the user's npub via NIP-07, signs listing events, and publishes to relays. Reputation follows the Nostr key — portable across apps.
+
+**Ecash-native UX.** Federation ecash settles instantly between federation members. A group-expense mini app (multispend) proposes spends, collects Nostr-signed approvals, and executes when threshold is met.
+
+**AI with Lightning metering.** Each chat message costs sats. The pattern: server creates invoice → client pays via WebLN → server streams the LLM response after preimage verification.
+
+## What create-fedi-app adds
+
+Fedi injects the raw browser APIs, but wiring them into React with loading states, error handling, mock providers, and TypeScript types is repetitive. create-fedi-app generates:
+
+- Provider components that call `enable()` and expose hooks
+- Mock implementations for `localhost` development
+- Demo pages showing each API in action
+- Optional modules for common patterns (pay gates, LNURL, zaps)
+
+You focus on product logic; the scaffold handles the Fedi integration layer.
+
+## Where to go next
+
+- [Quickstart](/docs/quickstart) — generate a project and run your first payment
+- [WebLN API](/docs/apis/webln) — full provider reference
+- [Patterns](/docs/patterns) — pay gates, identity login, zaps

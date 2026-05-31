@@ -1,0 +1,55 @@
+---
+title: ecash-balance
+description: Always-on module — fediInternal version detection, mini app listing, and install prompts at /demo/ecash.
+---
+
+Surfaces Fedi-specific APIs that exist only inside the wallet WebView. Ecash balance display depends on federation state; this module focuses on `window.fediInternal` discovery and mini app management.
+
+## Files added
+
+| File | Purpose |
+| --- | --- |
+| `hooks/useFediBalance.ts` | Loads fediInternal + mini apps on v2 |
+| `components/fedi/BalanceDisplay.tsx` | Federation balance UI placeholder |
+| `components/fedi/FediVersionBadge.tsx` | Shows detected API version |
+| `components/fedi/InstallMiniAppButton.tsx` | Triggers installMiniApp prompt |
+| `app/demo/ecash/page.tsx` | Demo explaining version tiers |
+
+## useFediBalance
+
+```typescript
+type TFediBalanceState =
+  | { status: 'loading' }
+  | { status: 'unavailable' }
+  | { status: 'ready'; version: 0 | 1 | 2; miniApps: TMiniApp[] | null; miniAppsError: boolean };
+```
+
+State machine:
+
+1. **loading** — initial mount
+2. **unavailable** — `window.fediInternal` not injected (normal browser)
+3. **ready** — version detected; on v2, mini apps loaded or `miniAppsError: true`
+
+## FediVersionBadge
+
+Small debug badge for development. Shows `fediInternal API v2` or "not available" message.
+
+## InstallMiniAppButton
+
+Calls `installMiniApp` on v2. Disabled when API unavailable or version &lt; 2.
+
+```tsx
+<InstallMiniAppButton
+  id="companion-app"
+  title="Companion App"
+  url="https://example.com/app"
+/>
+```
+
+## Demo route
+
+`/demo/ecash` — explains v0/v1/v2 differences, lists installed mini apps (clickable URLs on v2), demonstrates install flow.
+
+## See also
+
+- [fediInternal API reference](/docs/apis/fedi-internal)

@@ -1,0 +1,62 @@
+{
+  "name": "ai-chat-gated",
+  "description": "AI chat interface locked behind a Lightning micropayment per message",
+  "dependencies": [
+    "ai",
+    "@ai-sdk/react",
+    "react-markdown",
+    "@ai-sdk/anthropic",
+    "@ai-sdk/openai",
+    "@ai-sdk/groq",
+    "ollama-ai-provider"
+  ],
+  "devDependencies": [],
+  "files": [
+    { "src": "lib/chat-payment.ts", "dest": "lib/chat-payment.ts", "merge": "add" },
+    { "src": "lib/ai/providers.ts", "dest": "lib/ai/providers.ts", "merge": "add" },
+    { "src": "components/ai/ChatMessage.tsx", "dest": "components/ai/ChatMessage.tsx", "merge": "add" },
+    { "src": "components/ai/PaymentGate.tsx", "dest": "components/ai/PaymentGate.tsx", "merge": "add" },
+    { "src": "components/ai/GatedChat.tsx", "dest": "components/ai/GatedChat.tsx", "merge": "add" },
+    { "src": "app/api/chat/route.ts", "dest": "app/api/chat/route.ts", "merge": "add" },
+    { "src": "app/api/chat/invoice/route.ts", "dest": "app/api/chat/invoice/route.ts", "merge": "add" },
+    { "src": "app/demo/ai-chat/page.tsx", "dest": "app/demo/ai-chat/page.tsx", "merge": "add" }
+  ],
+  "envVars": [
+    {
+      "key": "AI_PROVIDER",
+      "description": "AI provider — anthropic | openai | groq | ollama",
+      "example": "anthropic",
+      "required": true
+    },
+    {
+      "key": "AI_API_KEY",
+      "description": "Provider API key (not required for ollama)",
+      "example": "sk-ant-...",
+      "required": true
+    },
+    {
+      "key": "AI_MODEL",
+      "description": "Specific model name (e.g. claude-sonnet-4-0)",
+      "example": "claude-sonnet-4-0",
+      "required": false
+    },
+    {
+      "key": "AI_BASE_URL",
+      "description": "Custom base URL for Ollama or self-hosted endpoints",
+      "example": "http://localhost:11434",
+      "required": false
+    },
+    {
+      "key": "AI_SATS_PER_MESSAGE",
+      "description": "Lightning price in sats for each AI message (server-side)",
+      "example": "10",
+      "required": false
+    },
+    {
+      "key": "NEXT_PUBLIC_SATS_PER_MESSAGE",
+      "description": "Same price exposed to the client UI",
+      "example": "10",
+      "required": false
+    }
+  ]
+}

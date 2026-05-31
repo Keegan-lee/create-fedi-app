@@ -1,0 +1,15 @@
+{
+  "title": "Modules",
+  "pages": [
+    "webln-payments",
+    "nostr-identity",
+    "ecash-balance",
+    "payment-gated",
+    "ai-chat-gated",
+    "ai-assistant",
+    "lnurl",
+    "multispend",
+    "nostr-feed",
+    "database"
+  ]
+}

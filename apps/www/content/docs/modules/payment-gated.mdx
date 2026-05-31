@@ -1,0 +1,94 @@
+---
+title: payment-gated
+description: Optional module — lock pages behind Lightning invoices with HMAC-signed access cookies after payment verification.
+---
+
+Module ID at scaffold time: `payment-gated-content`.
+
+Paywalled content without user accounts. Server creates a BOLT11 invoice, client pays via WebLN, server verifies preimage and sets an HMAC-signed cookie granting access.
+
+## Files added
+
+| File | Purpose |
+| --- | --- |
+| `lib/payment-gate.ts` | Cookie signing, route protection, invoice helpers |
+| `lib/payment-store.ts` | In-memory payment record store |
+| `components/payment-gated/PayGate.tsx` | Blurred preview + pay UI |
+| `app/api/payment-gate/invoice/route.ts` | POST — create invoice for contentId |
+| `app/api/payment-gate/verify/route.ts` | POST — verify preimage, set cookie |
+| `app/demo/payment-gated/` | Demo article behind paywall |
+| `proxy.ts` | Middleware replacing base — checks cookies on protected routes |
+
+## Flow
+
+```
+1. User visits /demo/payment-gated/article
+2. proxy.ts checks fedi-payment-token cookie → redirect to paywall if missing
+3. PayGate fetches POST /api/payment-gate/invoice { contentId }
+4. Server returns BOLT11 + paymentId
+5. User pays via WebLN → preimage returned
+6. Client POST /api/payment-gate/verify { paymentId, preimage, contentId }
+7. Server verifies preimage, marks payment paid, sets signed cookie
+8. User refreshes → proxy allows access
+```
+
+## Environment variables
+
+| Key | Required | Description |
+| --- | --- | --- |
+| `PAYMENT_GATE_SECRET` | no (dev default) | HMAC secret for cookie signing. **Set in production.** |
+
+## API routes
+
+### POST /api/payment-gate/invoice
+
+```typescript
+// Request
+{ contentId: string; amountSats?: number }
+
+// Response
+{ paymentRequest: string; paymentId: string; amountSats: number }
+```
+
+### POST /api/payment-gate/verify
+
+```typescript
+// Request
+{ paymentId: string; preimage: string; contentId: string }
+
+// Response
+{ success: true; token: string }
+```
+
+Also sets `fedi-payment-token` httpOnly cookie (30-day max age).
+
+## Protecting routes
+
+Add entries to `PROTECTED_ROUTES` in `lib/payment-gate.ts`:
+
+```typescript
+export const PROTECTED_ROUTES = [
+  { path: '/premium/report', contentId: 'report-q1' },
+] as const;
+```
+
+## PayGate component
+
+```tsx
+<PayGate
+  contentId="demo-article"
+  preview={<ArticlePreview />}
+  amountSats={100}
+/>
+```
+
+Shows blurred preview, invoice QR, WebLN pay button, and manual refresh link after payment.
+
+## Dev bypass
+
+In development, `x-mock-preimage` header on verify route simulates payment without WebLN.
+
+## See also
+
+- [Patterns — pay gate](/docs/patterns#pay-gate)
+- [WebLN API](/docs/apis/webln)

@@ -1,0 +1,27 @@
+{
+  "name": "lnurl",
+  "description": "LNURL-pay, LNURL-auth, and LNURL-withdraw flows",
+  "dependencies": ["qrcode.react"],
+  "devDependencies": [],
+  "files": [
+    { "src": "lib/lnurl-utils.ts", "dest": "lib/lnurl-utils.ts", "merge": "add" },
+    { "src": "lib/lnurl-store.ts", "dest": "lib/lnurl-store.ts", "merge": "add" },
+    { "src": "lib/lnurl-auth-verify.ts", "dest": "lib/lnurl-auth-verify.ts", "merge": "add" },
+    { "src": "components/lnurl/LnurlQR.tsx", "dest": "components/lnurl/LnurlQR.tsx", "merge": "add" },
+    { "src": "components/lnurl/LnurlPay.tsx", "dest": "components/lnurl/LnurlPay.tsx", "merge": "add" },
+    { "src": "components/lnurl/LnurlAuth.tsx", "dest": "components/lnurl/LnurlAuth.tsx", "merge": "add" },
+    { "src": "components/lnurl/LnurlWithdraw.tsx", "dest": "components/lnurl/LnurlWithdraw.tsx", "merge": "add" },
+    { "src": "app/api/lnurlp/[username]/route.ts", "dest": "app/api/lnurlp/[username]/route.ts", "merge": "add" },
+    { "src": "app/api/lnurlauth/route.ts", "dest": "app/api/lnurlauth/route.ts", "merge": "add" },
+    { "src": "app/api/lnurlw/route.ts", "dest": "app/api/lnurlw/route.ts", "merge": "add" },
+    { "src": "app/demo/lnurl/page.tsx", "dest": "app/demo/lnurl/page.tsx", "merge": "add" }
+  ],
+  "envVars": [
+    {
+      "key": "LNURL_SERVER_URL",
+      "description": "Public base URL for LNURL callbacks (required behind reverse proxies)",
+      "example": "https://your-app.example.com",
+      "required": false
+    }
+  ]
+}

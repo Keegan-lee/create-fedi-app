@@ -1,0 +1,29 @@
+{
+  "name": "create-fedi-app",
+  "version": "0.1.0",
+  "description": "CLI scaffolder for Fedi Bitcoin mini apps",
+  "bin": {
+    "create-fedi-app": "./dist/index.js"
+  },
+  "files": ["dist/"],
+  "keywords": ["fedi", "fedimint", "bitcoin", "lightning", "webln", "nostr", "mini-app", "nextjs"],
+  "license": "MIT",
+  "scripts": {
+    "build": "tsup && rm -rf dist/templates && cp -R ../../templates dist/templates",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "bun run build && bun run typecheck"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.9.0",
+    "execa": "^9.5.0",
+    "fs-extra": "^11.2.0",
+    "picocolors": "^1.1.0",
+    "semver": "^7.6.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/semver": "^7.5.8",
+    "tsup": "^8.3.0"
+  }
+}

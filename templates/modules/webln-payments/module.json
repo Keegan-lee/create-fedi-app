@@ -1,0 +1,17 @@
+{
+  "name": "webln-payments",
+  "description": "WebLN Lightning payment send and receive demos",
+  "dependencies": ["qrcode.react"],
+  "devDependencies": [],
+  "files": [
+    { "src": "components/webln/PayButton.tsx", "dest": "components/webln/PayButton.tsx", "merge": "add" },
+    { "src": "components/webln/InvoiceCard.tsx", "dest": "components/webln/InvoiceCard.tsx", "merge": "add" },
+    { "src": "components/webln/PaymentHistory.tsx", "dest": "components/webln/PaymentHistory.tsx", "merge": "add" },
+    { "src": "hooks/usePaymentFlow.ts", "dest": "hooks/usePaymentFlow.ts", "merge": "add" },
+    { "src": "lib/payment-history.ts", "dest": "lib/payment-history.ts", "merge": "add" },
+    { "src": "hooks/__tests__/usePaymentFlow.test.tsx", "dest": "hooks/__tests__/usePaymentFlow.test.tsx", "merge": "add" },
+    { "src": "tests/e2e/webln-payment.spec.ts", "dest": "tests/e2e/webln-payment.spec.ts", "merge": "add" },
+    { "src": "app/demo/webln/page.tsx", "dest": "app/demo/webln/page.tsx", "merge": "add" }
+  ],
+  "envVars": []
+}

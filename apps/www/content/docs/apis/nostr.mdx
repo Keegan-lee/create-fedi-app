@@ -1,0 +1,178 @@
+---
+title: Nostr (NIP-07)
+description: Nostr identity in Fedi mini apps — getPublicKey, signEvent, getRelays, nip04 encryption, and React hooks.
+---
+
+Fedi injects `window.nostr` implementing [NIP-07](https://github.com/nostr-protocol/nips/blob/master/07.md) — browser-based Nostr signing without exposing private keys to your app.
+
+## Provider lifecycle
+
+```tsx
+// lib/nostr/provider.tsx — simplified
+useEffect(() => {
+  if (window.nostr) {
+    const pk = await window.nostr.getPublicKey();
+    setProvider(window.nostr);
+    setPubkey(pk);
+  } else if (mockProvider && process.env.NODE_ENV === 'development') {
+    const pk = await mockProvider.getPublicKey();
+    setProvider(mockProvider);
+    setPubkey(pk);
+  }
+}, []);
+```
+
+Unlike WebLN, NIP-07 does not require an explicit `enable()` call. `getPublicKey()` is the permission gate — Fedi prompts the user on first access.
+
+## NostrProvider interface
+
+```typescript
+interface NostrProvider {
+  getPublicKey(): Promise<string>;
+  signEvent(event: UnsignedNostrEvent): Promise<NostrEvent>;
+  getRelays(): Promise<Record<string, { read: boolean; write: boolean }>>;
+  nip04: Nip04;
+}
+```
+
+### getPublicKey()
+
+Returns the user's hex-encoded secp256k1 public key (64 chars, no `0x` prefix).
+
+| Returns | `Promise<string>` — hex pubkey |
+| Errors | User denial |
+
+```typescript
+const pubkey = await window.nostr!.getPublicKey();
+// "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+```
+
+### signEvent(event)
+
+Signs a Nostr event. The provider fills in `id`, `pubkey`, and `sig`.
+
+```typescript
+interface UnsignedNostrEvent {
+  created_at: number;
+  kind: number;
+  tags: string[][];
+  content: string;
+}
+
+interface NostrEvent extends UnsignedNostrEvent {
+  id: string;
+  pubkey: string;
+  sig: string;
+}
+```
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `event.created_at` | `number` | Unix timestamp |
+| `event.kind` | `number` | Event kind (1 = text note, 9734 = zap request, etc.) |
+| `event.tags` | `string[][]` | Nostr tags |
+| `event.content` | `string` | Event body |
+
+| Returns | Signed `NostrEvent` |
+| Errors | User denial, invalid event structure |
+
+```typescript
+const signed = await window.nostr!.signEvent({
+  kind: 1,
+  created_at: Math.floor(Date.now() / 1000),
+  tags: [],
+  content: 'Hello from a Fedi mini app',
+});
+// Publish signed to relays via nostr-tools or WebSocket
+```
+
+### getRelays()
+
+Returns the user's configured relay permissions.
+
+```typescript
+// { "wss://relay.damus.io": { read: true, write: true }, ... }
+const relays = await window.nostr!.getRelays();
+```
+
+### nip04
+
+NIP-04 encrypted direct messages.
+
+```typescript
+interface Nip04 {
+  encrypt(pubkey: string, plaintext: string): Promise<string>;
+  decrypt(pubkey: string, ciphertext: string): Promise<string>;
+}
+```
+
+## React hooks
+
+### useNostr()
+
+```typescript
+function useNostr(): {
+  provider: NostrProvider | null;
+  pubkey: string | null;
+  npub: string | null;       // bech32-encoded pubkey
+  isLoading: boolean;
+  error: Error | null;
+  isConnected: boolean;
+}
+```
+
+`npub` is derived from hex pubkey via bech32 encoding.
+
+### useIdentity()
+
+Convenience wrapper for common identity operations.
+
+```typescript
+function useIdentity(): {
+  pubkey: string | null;
+  npub: string | null;
+  displayNpub: string | null;  // truncated "npub1abc...xyz"
+  getPublicKey: () => Promise<string | null>;
+  signEvent: (event: UnsignedNostrEvent) => Promise<NostrEvent | null>;
+  isConnecting: boolean;
+}
+```
+
+```tsx
+const { displayNpub, signEvent } = useIdentity();
+
+if (!displayNpub) return <button onClick={getPublicKey}>Connect Nostr</button>;
+```
+
+## Mock provider
+
+`MockNostrProvider` uses a well-known test keypair (documented in source — **never use in production**):
+
+```typescript
+// Deterministic test pubkey from privkey = 0x00...01
+const provider = new MockNostrProvider();
+```
+
+Set a custom mock npub via the Fedi Dev Toolbar input field.
+
+## Event kinds used in modules
+
+| Kind | Name | Used by |
+| --- | --- | --- |
+| `1` | Text note | nostr-feed |
+| `9734` | Zap request | nostr-feed (ZapButton) |
+| `9735` | Zap receipt | nostr-feed |
+
+## Common errors
+
+| Error | Cause | Fix |
+| --- | --- | --- |
+| `Failed to connect Nostr` | User denied getPublicKey | Show connect button, explain identity use |
+| `useNostr must be used within a NostrProvider` | Missing provider | Wrap in `<NostrProvider>` |
+| Relay publish fails | Write-disabled relay | Check `getRelays()` write permissions |
+
+## Spec reference
+
+- [NIP-07](https://github.com/nostr-protocol/nips/blob/master/07.md) — browser extension API
+- [NIP-04](https://github.com/nostr-protocol/nips/blob/master/04.md) — encrypted DMs
+- [NIP-57](https://github.com/nostr-protocol/nips/blob/master/57.md) — Lightning zaps

@@ -1,0 +1,53 @@
+---
+title: Getting Started
+description: Overview of create-fedi-app — scaffold a Fedi mini app with WebLN, Nostr, and optional Lightning modules in minutes.
+---
+
+create-fedi-app scaffolds a production-ready Next.js 16 mini app that runs inside the [Fedi](https://fedi.xyz) mobile wallet. The generated project includes WebLN payment hooks, Nostr identity, ecash balance reads, mock providers for local development, and optional modules you select at scaffold time.
+
+## What you get
+
+Every scaffold includes:
+
+| Layer | What it does |
+| --- | --- |
+| **WebLN** | `window.webln` provider wrapper, React hooks, mock wallet for dev |
+| **Nostr** | NIP-07 identity layer with `getPublicKey`, `signEvent`, relay access |
+| **Fedi internal** | Versioned `window.fediInternal` hook for mini app discovery |
+| **UI kit** | `@create-fedi-app/ui` — SatsAmount, ConnectionBadge, MiniAppLayout |
+| **Dev toolbar** | Toggle mock WebLN/Nostr, simulate payment failures, set mock npub |
+
+Optional modules add demo pages under `/demo/*` — payment gates, LNURL flows, AI chat, Nostr feed, multispend UI, and database CRUD.
+
+## Quick path
+
+```bash
+npx create-fedi-app@latest
+cd my-fedi-app
+cp .env.example .env.local
+bun dev
+```
+
+Open `http://localhost:3000` in a browser for layout work. Open the same URL as a **custom Mini App** inside Fedi to get real `window.webln` and `window.nostr` injection.
+
+## Docs map
+
+<Cards>
+  <Card title="Why Fedi?" href="/docs/why-fedi" description="What Fedi is and why mini apps matter for Lightning + Nostr builders." />
+  <Card title="Quickstart" href="/docs/quickstart" description="Five-minute walkthrough from CLI to first payment." />
+  <Card title="CLI reference" href="/docs/cli" description="Every prompt, flag, and module selection option." />
+  <Card title="APIs" href="/docs/apis/webln" description="WebLN, Nostr NIP-07, and fediInternal type reference." />
+  <Card title="Modules" href="/docs/modules/webln-payments" description="Per-module guides for optional scaffold features." />
+  <Card title="Patterns" href="/docs/patterns" description="Pay gates, identity login, zaps — common integration recipes." />
+</Cards>
+
+## Test federation
+
+Use [Mutinynet](https://fedibtc.github.io/fedi-docs/docs/fedimint/intro/) for test sats. Join a test federation in Fedi, add your localhost URL as a custom mini app, and payments use test Lightning — no mainnet risk.
+
+## External references
+
+- [Fedi docs](https://fedibtc.github.io/fedi-docs/) — wallet features, federation setup
+- [WebLN spec](https://webln.dev/) — provider method definitions
+- [NIP-07](https://github.com/nostr-protocol/nips/blob/master/07.md) — browser Nostr signing
+- [Catalog submission](https://docs.google.com/forms/d/e/1FAIpQLSfrvsoeaNYiGhoc8QwzLXEi4zMFVyxpa4ufJFTwEHp97AeUmQ/viewform) — list your app in the Fedi catalog

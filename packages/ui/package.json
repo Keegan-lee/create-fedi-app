@@ -1,0 +1,36 @@
+{
+  "name": "@create-fedi-app/ui",
+  "version": "0.1.0",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "peerDependencies": {
+    "next": "^16",
+    "react": "^19"
+  },
+  "dependencies": {
+    "@create-fedi-app/fedi-types": "workspace:*",
+    "@create-fedi-app/nostr": "workspace:*",
+    "@create-fedi-app/webln": "workspace:*",
+    "@radix-ui/react-label": "^2.1.8",
+    "@radix-ui/react-separator": "^1.1.8",
+    "@radix-ui/react-slot": "^1.2.4",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.0",
+    "lucide-react": "^0.499.0",
+    "tailwind-merge": "^2.3.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19",
+    "@vitejs/plugin-react": "^4",
+    "jsdom": "^25",
+    "vitest": "^2"
+  }
+}

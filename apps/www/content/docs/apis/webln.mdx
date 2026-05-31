@@ -1,0 +1,184 @@
+---
+title: WebLN
+description: WebLN provider reference for Fedi mini apps — enable, sendPayment, makeInvoice, signMessage, and React hooks.
+---
+
+Fedi injects `window.webln` into the mini app WebView. The scaffold wraps it in a React provider that calls `enable()` on mount and exposes typed hooks.
+
+## Provider lifecycle
+
+```tsx
+// lib/webln/provider.tsx — simplified
+useEffect(() => {
+  if (window.webln) {
+    await window.webln.enable();
+    setProvider(window.webln);
+  } else if (mockProvider && process.env.NODE_ENV !== 'production') {
+    setProvider(mockProvider);
+  }
+}, []);
+```
+
+`enable()` must succeed before any payment method works. User denial throws and sets `error` on the context.
+
+## WebLNProvider interface
+
+```typescript
+interface WebLNProvider {
+  enable(): Promise<void>;
+  getInfo(): Promise<GetInfoResponse>;
+  sendPayment(paymentRequest: string): Promise<SendPaymentResponse>;
+  makeInvoice(args: RequestInvoiceArgs | string | number): Promise<RequestInvoiceResponse>;
+  signMessage(message: string): Promise<SignMessageResponse>;
+  verifyMessage(signature: string, message: string): Promise<void>;
+  sendKeysend(args: KeysendArgs): Promise<SendPaymentResponse>;
+}
+```
+
+### enable()
+
+Requests permission to use the wallet. Fedi shows a consent dialog on first call.
+
+| Returns | `Promise<void>` |
+| Errors | User rejection, provider unavailable |
+
+### getInfo()
+
+Returns node metadata and supported methods.
+
+```typescript
+interface GetInfoResponse {
+  node: { alias: string; pubkey: string; color: string };
+  methods: string[];
+}
+```
+
+### sendPayment(paymentRequest)
+
+Pays a BOLT11 invoice.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `paymentRequest` | `string` | BOLT11 string starting with `lnbc` |
+
+| Returns | `{ preimage: string }` |
+| Errors | Invalid invoice, insufficient balance, user cancel, network failure |
+
+```typescript
+const { preimage } = await window.webln!.sendPayment('lnbc100n1...');
+// Send preimage to your server to verify payment
+```
+
+### makeInvoice(args)
+
+Creates a BOLT11 invoice for receiving sats.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `args` | `RequestInvoiceArgs \| string \| number` | Amount in sats, or full args object |
+
+```typescript
+interface RequestInvoiceArgs {
+  amount?: string | number;
+  defaultAmount?: string | number;
+  minimumAmount?: string | number;
+  maximumAmount?: string | number;
+  defaultMemo?: string;
+}
+
+interface RequestInvoiceResponse {
+  paymentRequest: string;
+}
+```
+
+Pass a number for a fixed-amount invoice: `makeInvoice(100)`.
+
+### signMessage(message)
+
+Signs an arbitrary string with the node's key.
+
+| Returns | `{ message: string; signature: string }` |
+
+### verifyMessage(signature, message)
+
+Verifies a signature. Throws on invalid signature.
+
+### sendKeysend(args)
+
+Direct keysend payment without an invoice.
+
+```typescript
+interface KeysendArgs {
+  destination: string;  // node pubkey
+  amount: string | number;
+  customRecords?: Record<string, string>;
+}
+```
+
+## React hooks
+
+### useWebLN()
+
+```typescript
+function useWebLN(): {
+  provider: WebLNProvider | null;
+  isLoading: boolean;
+  error: Error | null;
+  isConnected: boolean;
+}
+```
+
+Throws if used outside `WebLNProvider`.
+
+### usePayment()
+
+```typescript
+function usePayment(): {
+  sendPayment: (paymentRequest: string) => Promise<SendPaymentResponse | null>;
+  makeInvoice: (args: RequestInvoiceArgs | string | number) => Promise<RequestInvoiceResponse | null>;
+  isPaying: boolean;
+  isCreatingInvoice: boolean;
+  paymentError: Error | null;
+  lastPreimage: string | null;
+  lastInvoice: string | null;
+}
+```
+
+Errors are caught internally and exposed via `paymentError`. Returns `null` on failure.
+
+```tsx
+const { sendPayment, isPaying } = usePayment();
+
+async function handlePay(invoice: string) {
+  const result = await sendPayment(invoice);
+  if (result) {
+    await fetch('/api/verify', { method: 'POST', body: JSON.stringify({ preimage: result.preimage }) });
+  }
+}
+```
+
+## Mock provider
+
+`MockWebLNProvider` in `lib/webln/mock.ts` simulates payments in development:
+
+```typescript
+new MockWebLNProvider({
+  paymentDelay: 600,      // ms before resolving
+  shouldFail: false,       // simulate rejection
+  failureMessage: 'Payment failed',
+});
+```
+
+Toggle via the Fedi Dev Toolbar or pass `mockProvider` to `WebLNProvider`.
+
+## Common errors
+
+| Error | Cause | Fix |
+| --- | --- | --- |
+| `Failed to enable WebLN` | User denied consent | Retry; explain why payment is needed |
+| `Invalid payment request` | Malformed BOLT11 | Validate invoice server-side before displaying |
+| `useWebLN must be used within a WebLNProvider` | Missing provider in tree | Wrap app in `<WebLNProvider>` via `components/providers.tsx` |
+
+## Spec reference
+
+Full method definitions: [webln.dev](https://webln.dev/)

@@ -1,0 +1,128 @@
+---
+title: Testing
+description: Test Fedi mini apps with mock WebLN and Nostr providers, Vitest unit tests, and Playwright e2e specs.
+---
+
+Fedi APIs only exist inside the wallet WebView. The scaffold provides mock providers and test infrastructure so you can CI without Fedi installed.
+
+## Mock providers
+
+### Fedi Dev Toolbar
+
+Available in `NODE_ENV=development` only. Fixed bottom-right panel:
+
+| Toggle | Effect |
+| --- | --- |
+| Mock WebLN | Injects `MockWebLNProvider` into WebLNProvider |
+| Mock Nostr | Injects `MockNostrProvider` into NostrProvider |
+| fail: ON/OFF | MockWebLN throws on payment |
+| mock npub | Override mock Nostr public key display |
+
+### MockWebLNProvider
+
+```typescript
+import { MockWebLNProvider } from '@/lib/webln/mock';
+
+const mock = new MockWebLNProvider({
+  paymentDelay: 600,
+  shouldFail: false,
+});
+```
+
+| Method | Mock behavior |
+| --- | --- |
+| `enable()` | Resolves unless `shouldFail` |
+| `sendPayment()` | Returns random 32-byte hex preimage after delay |
+| `makeInvoice()` | Returns fake `lnbc...` string |
+| `signMessage()` | Returns random 64-byte hex signature |
+| `getInfo()` | Returns "Fedi Dev Node" alias |
+
+### MockNostrProvider
+
+Uses deterministic test keypair (privkey `0x00...01`). Signs events with real `@noble/curves` schnorr — valid cryptography, **not a secure key**.
+
+```typescript
+import { MockNostrProvider } from '@/lib/nostr/mock';
+const mock = new MockNostrProvider();
+const pk = await mock.getPublicKey(); // always same test pubkey
+```
+
+## Dev API bypasses
+
+Modules include development shortcuts:
+
+| Header | Effect |
+| --- | --- |
+| `x-mock-preimage: dev` | Skip WebLN payment verification on API routes |
+
+Used in `payment-gated` and `ai-chat-gated` verify endpoints. **Stripped in production** via `NODE_ENV` checks.
+
+## Vitest
+
+Base template includes Vitest configuration:
+
+```bash
+bun test
+```
+
+Example unit test (`hooks/__tests__/usePaymentFlow.test.tsx` in webln-payments module):
+
+```typescript
+import { renderHook, act } from '@testing-library/react';
+import { MockWebLNProvider } from '@/lib/webln/mock';
+
+// Wrap in WebLNProvider with mockProvider prop
+const { result } = renderHook(() => usePaymentFlow(), { wrapper });
+
+await act(async () => {
+  const ok = await result.current.payExisting('lnbc100n1test');
+  expect(ok).toBe(true);
+});
+```
+
+`vitest.setup.ts` configures jsdom and testing-library matchers.
+
+## Playwright e2e
+
+webln-payments module includes `tests/e2e/webln-payment.spec.ts`:
+
+```bash
+bunx playwright test
+```
+
+E2e tests run against `localhost:3000` with mock providers enabled via dev toolbar or direct provider injection.
+
+## Testing checklist
+
+| Scenario | How to test |
+| --- | --- |
+| Pay button UI | Mock WebLN in browser, click Pay |
+| Payment gate cookie | Pay → verify → refresh protected route |
+| Nostr connect | Mock Nostr, check npub display |
+| Publish note | Mock sign, check relay publish (mock relay or test relay) |
+| AI chat gate | Mock preimage header on API |
+| fediInternal v2 | Requires real Fedi — no mock available |
+
+## CI recommendations
+
+```yaml
+# GitHub Actions example
+- run: bun install
+- run: bun run typecheck
+- run: bun run lint
+- run: bun test
+- run: bun run build
+```
+
+Skip Playwright in CI unless you start a dev server — or use `@playwright/test` webServer config.
+
+## Real device testing
+
+Mocks validate logic; Fedi validates integration:
+
+1. Deploy preview URL (Vercel) or use ngrok on localhost
+2. Add URL as custom mini app in Fedi
+3. Test on Mutinynet with test sats
+4. Verify real preimages against your Lightning node
+
+See [Deployment](/docs/deployment) for preview URLs.

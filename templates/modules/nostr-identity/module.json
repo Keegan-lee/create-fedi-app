@@ -1,0 +1,15 @@
+{
+  "name": "nostr-identity",
+  "description": "NIP-07 Nostr identity connection and signed message demos",
+  "dependencies": [],
+  "devDependencies": [],
+  "files": [
+    { "src": "components/nostr/IdentityBadge.tsx", "dest": "components/nostr/IdentityBadge.tsx", "merge": "add" },
+    { "src": "components/nostr/SignedMessage.tsx", "dest": "components/nostr/SignedMessage.tsx", "merge": "add" },
+    { "src": "components/nostr/NostrLogin.tsx", "dest": "components/nostr/NostrLogin.tsx", "merge": "add" },
+    { "src": "hooks/useIdentityFlow.ts", "dest": "hooks/useIdentityFlow.ts", "merge": "add" },
+    { "src": "lib/nostr-utils.ts", "dest": "lib/nostr-utils.ts", "merge": "add" },
+    { "src": "app/demo/nostr/page.tsx", "dest": "app/demo/nostr/page.tsx", "merge": "add" }
+  ],
+  "envVars": []
+}

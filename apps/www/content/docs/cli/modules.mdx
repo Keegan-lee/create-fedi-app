@@ -1,0 +1,64 @@
+---
+title: Module Selection
+description: Guide to choosing optional modules at scaffold time — dependencies, demo routes, and when to combine modules.
+---
+
+## Always included
+
+These modules apply to every generated project. You do not select them — they are merged automatically.
+
+| Module | Demo route | Purpose |
+| --- | --- | --- |
+| `webln-payments` | `/demo/webln` | PayButton, InvoiceCard, payment history |
+| `nostr-identity` | — | NostrProvider, useNostr, useIdentity hooks |
+| `ecash-balance` | `/demo/ecash` | fediInternal version badge, mini app list |
+
+## Optional modules
+
+| Module | Demo route | Requires | Best for |
+| --- | --- | --- | --- |
+| `payment-gated-content` | `/demo/payment-gated` | webln-payments | Paywalled articles, premium content |
+| `lnurl` | `/demo/lnurl` | standalone | LNURL-pay, auth, withdraw endpoints |
+| `ai-chat-gated` | `/demo/ai-chat` | webln-payments | Sats-per-message AI chat |
+| `ai-assistant` | `/demo/assistant` | standalone | Free AI chat (no payment) |
+| `multispend-demo` | `/demo/multispend` | nostr-identity | Threshold spending UI walkthrough |
+| `nostr-feed` | `/demo/nostr-feed` | nostr-identity | Social feed + zaps |
+| `database` | `/demo/database` | standalone | Drizzle CRUD with Turso or Supabase |
+
+## Dependency graph
+
+```
+webln-payments      ← always included
+nostr-identity      ← always included
+ecash-balance       ← always included
+payment-gated       → webln-payments (+ database enhances persistence)
+lnurl               → standalone
+ai-chat-gated       → webln-payments
+ai-assistant        → standalone
+multispend-demo     → nostr-identity
+nostr-feed          → nostr-identity (+ webln for zaps)
+database            → standalone (auto-applied when Turso/Supabase selected)
+ai-rules            → standalone (meta-module)
+```
+
+## Recommended combinations
+
+**Content marketplace:** `payment-gated-content` + `nostr-feed` — paid articles with social comments and zaps.
+
+**AI product:** `ai-chat-gated` + `database` — metered AI with conversation history in Turso.
+
+**Lightning SaaS:** `lnurl` + `payment-gated-content` — LNURL-pay for tips, pay gate for premium features.
+
+**Social app:** `nostr-feed` + `multispend-demo` — feed with group wallet demo.
+
+## Database selection interaction
+
+Choosing **Turso** or **Supabase** at the database prompt applies the `database` module with driver-specific files. You do not need to also select "Database demo" in the multiselect — but selecting it explicitly when database is **None** adds Drizzle without a configured driver (not useful; pick a database type instead).
+
+## Adding modules after scaffold
+
+The CLI does not support adding modules to an existing project. Options:
+
+1. Generate a new project with the desired modules and migrate your code
+2. Manually copy files from `templates/modules/[name]/` following the `module.json` manifest
+3. Reference the [module guides](/docs/modules/webln-payments) for file lists and env vars

@@ -1,0 +1,83 @@
+---
+title: Quickstart
+description: Generate a Fedi mini app, run it locally with mock providers, then test inside the Fedi wallet on Mutinynet.
+---
+
+## 1. Scaffold
+
+```bash
+npx create-fedi-app@latest
+```
+
+Accept defaults for a first run: project name `my-fedi-app`, database **None**, no optional modules, AI rules **Yes**, package manager **bun**.
+
+The CLI copies the base template, applies always-on modules (`webln-payments`, `nostr-identity`, `ecash-balance`), installs dependencies, and prints next steps.
+
+## 2. Environment
+
+```bash
+cd my-fedi-app
+cp .env.example .env.local
+```
+
+For the base scaffold alone, no secrets are required. Modules you add later may need API keys — see each module's `.env.example` entries.
+
+## 3. Dev server
+
+```bash
+bun dev
+```
+
+Visit `http://localhost:3000`. The **Fedi Dev Toolbar** (bottom-right) lets you enable mock WebLN and mock Nostr without opening the wallet.
+
+## 4. Test a mock payment
+
+1. Open `/demo/webln`
+2. Enable **Mock WebLN** in the dev toolbar
+3. Click **Pay** on a demo invoice — the mock provider returns a fake preimage after ~600ms
+
+Mock payments exercise your UI flow. They do not hit Lightning.
+
+## 5. Test inside Fedi
+
+1. Install Fedi: [fedi.xyz/get-the-app](https://fedi.xyz/get-the-app)
+2. Join a Mutinynet test federation — see [Fedi Fedimint intro](https://fedibtc.github.io/fedi-docs/docs/fedimint/intro/)
+3. In Fedi settings, add a custom mini app pointing to `http://<your-lan-ip>:3000` (or use a tunnel like ngrok for remote testing)
+4. Open the mini app — `window.webln` and `window.nostr` are injected by the wallet
+
+<Callout type="warn">
+  Fedi on a physical device cannot reach `localhost` on your laptop. Use your machine's LAN IP or a tunnel URL.
+</Callout>
+
+## 6. Add a module
+
+Re-run is not supported — generate a new project or copy module files manually. At scaffold time, toggle optional modules:
+
+```bash
+npx create-fedi-app@latest
+# Select "payment-gated-content" in the multiselect
+```
+
+Then visit `/demo/payment-gated` for a paywalled article demo.
+
+## Project layout
+
+```
+my-fedi-app/
+├── app/                  # Next.js App Router pages
+│   └── demo/             # Module demo routes
+├── components/           # UI components
+├── lib/
+│   ├── webln/            # WebLN provider + hooks
+│   ├── nostr/            # Nostr provider + hooks
+│   └── fedi-types.ts     # Shared TypeScript types
+├── hooks/
+│   └── useFediInternal.ts
+└── .ai/rules/            # AI context (if selected)
+```
+
+## Next steps
+
+- [CLI options](/docs/cli/options) — all prompts documented
+- [Testing](/docs/testing) — mock providers, Vitest, Playwright
+- [Deployment](/docs/deployment) — Vercel + catalog submission
