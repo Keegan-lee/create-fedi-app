@@ -41,6 +41,6 @@ yarn-debug.log*
 yarn-error.log*
 
 # Generated projects (during testing)
-fedi-*/
-audit-test/
-final-test/
+/fedi-*/
+/audit-test/
+/final-test/
