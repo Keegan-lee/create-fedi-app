@@ -9,7 +9,15 @@
     { "src": "components/nostr/NostrLogin.tsx", "dest": "components/nostr/NostrLogin.tsx", "merge": "add" },
     { "src": "hooks/useIdentityFlow.ts", "dest": "hooks/useIdentityFlow.ts", "merge": "add" },
     { "src": "lib/nostr-utils.ts", "dest": "lib/nostr-utils.ts", "merge": "add" },
+    { "src": "lib/nostr-publish.ts", "dest": "lib/nostr-publish.ts", "merge": "add" },
     { "src": "app/demo/nostr/page.tsx", "dest": "app/demo/nostr/page.tsx", "merge": "add" }
   ],
-  "envVars": []
+  "envVars": [
+    {
+      "key": "NEXT_PUBLIC_NOSTR_RELAY",
+      "description": "Nostr relay WebSocket URL(s) for broadcasting signed notes, comma-separated",
+      "example": "wss://relay.damus.io,wss://relay.nostr.band",
+      "required": false
+    }
+  ]
 }

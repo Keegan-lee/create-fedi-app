@@ -8,7 +8,9 @@
     { "src": "components/fedi/BalanceDisplay.tsx", "dest": "components/fedi/BalanceDisplay.tsx", "merge": "add" },
     { "src": "components/fedi/FediVersionBadge.tsx", "dest": "components/fedi/FediVersionBadge.tsx", "merge": "add" },
     { "src": "components/fedi/InstallMiniAppButton.tsx", "dest": "components/fedi/InstallMiniAppButton.tsx", "merge": "add" },
+    { "src": "components/fedi/WalletBalance.tsx", "dest": "components/fedi/WalletBalance.tsx", "merge": "add" },
     { "src": "hooks/useFediBalance.ts", "dest": "hooks/useFediBalance.ts", "merge": "add" },
+    { "src": "hooks/useWalletBalance.ts", "dest": "hooks/useWalletBalance.ts", "merge": "add" },
     { "src": "app/demo/ecash/page.tsx", "dest": "app/demo/ecash/page.tsx", "merge": "add" }
   ],
   "envVars": []
