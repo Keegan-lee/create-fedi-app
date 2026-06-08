@@ -20,7 +20,7 @@ export const MODULE_DEMO_ROUTES: Record<string, IDemoRoute> = {
   'ecash-balance': {
     href: '/demo/ecash',
     title: 'Ecash Balance',
-    description: 'fediInternal mini-app discovery, list, and install prompts.',
+    description: 'Read your wallet balance over WebLN plus fediInternal mini-app discovery.',
   },
   'payment-gated-content': {
     href: '/demo/payment-gated',
