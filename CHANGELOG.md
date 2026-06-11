@@ -2,6 +2,22 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.1.5]
+
+### Fixed
+
+- Payment-gated content: reworked verification to be fully stateless — payment IDs are HMAC-signed tokens carrying the invoice payment hash, and access is proven by a signed HttpOnly cookie (fixes verify failures on serverless and multi-instance hosts)
+- LNURL: `encodeLnurl` no longer hits bech32’s 90-character default limit on real deployment hosts (fixes “Failed to load auth challenge” / “Failed to load withdrawal request”)
+- eCash balance: demo now reads wallet balance via the WebLN `getBalance()` extension when available, with clear messaging when the active-wallet/federation caveat applies
+
+### Changed
+
+- WebLN demo: renamed misleading “Receive payment” section to “Generate Invoice to Pay”
+- Nostr identity: signed messages can be broadcast to public Nostr relays with per-relay status and an njump.me link to view the note
+- LNURL demo: added setup and testing guidance on the demo page
+
+[0.1.5]: https://github.com/keegan-lee/create-fedi-app/releases/tag/v0.1.5
+
 ## [0.1.4]
 
 ### Changed
