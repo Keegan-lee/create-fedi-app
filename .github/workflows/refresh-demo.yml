@@ -1,0 +1,56 @@
+name: Refresh demo
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout create-fedi-app
+        uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install monorepo dependencies
+        run: bun install
+
+      - name: Build CLI
+        run: bun run build
+        working-directory: apps/cli
+
+      - name: Checkout demo repository
+        uses: actions/checkout@v4
+        with:
+          repository: Keegan-lee/create-fedi-app-demo
+          path: demo-repo
+          token: ${{ secrets.DEMO_REPO_TOKEN }}
+
+      - name: Regenerate and verify demo
+        env:
+          DEMO_REPO: ${{ github.workspace }}/demo-repo
+        run: bash scripts/refresh-demo.sh
+
+      - name: Commit and push
+        working-directory: demo-repo
+        env:
+          DEMO_REPO_TOKEN: ${{ secrets.DEMO_REPO_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet && git diff --staged --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          VERSION=$(node -p "require('../apps/cli/package.json').version")
+          git add -A
+          git commit -m "chore: refresh from create-fedi-app v${VERSION}"
+          git remote set-url origin "https://x-access-token:${DEMO_REPO_TOKEN}@github.com/Keegan-lee/create-fedi-app-demo.git"
+          git push origin HEAD:main

@@ -117,6 +117,24 @@ git push origin v0.1.0
 
 Requires an `NPM_TOKEN` secret on the repository (Automation token with publish access to `create-fedi-app`).
 
+## Refreshing the public demo
+
+The live showcase at [create-fedi-app-demo.keeganfrancis.com](https://create-fedi-app-demo.keeganfrancis.com) is generated output in [Keegan-lee/create-fedi-app-demo](https://github.com/Keegan-lee/create-fedi-app-demo). Do not edit that repo by hand — refresh it from this monorepo.
+
+**One-time setup:** add a `DEMO_REPO_TOKEN` repository secret (fine-grained PAT or classic token with **Contents: Read and write** on `create-fedi-app-demo` only).
+
+**Automated:** [`.github/workflows/refresh-demo.yml`](./.github/workflows/refresh-demo.yml) runs on every `v*.*.*` tag push (alongside the npm release) and can be triggered manually from **Actions → Refresh demo → Run workflow**.
+
+**Local:**
+
+```bash
+cd apps/cli && bun run build
+DEMO_REPO=../create-fedi-app-demo ../../scripts/refresh-demo.sh
+cd ../create-fedi-app-demo && git add -A && git commit -m "chore: refresh demo" && git push
+```
+
+Scaffold options are pinned in [`scripts/demo-profile.env`](./scripts/demo-profile.env). Production secrets (`PAYMENT_GATE_SECRET`, `LNURL_SERVER_URL`, etc.) stay in the Vercel project for the demo — they are not overwritten on refresh.
+
 ## Deploying the docs site (Vercel)
 
 The marketing and documentation site in `apps/www` deploys to [create-fedi-app.keeganfrancis.com](https://create-fedi-app.keeganfrancis.com).
